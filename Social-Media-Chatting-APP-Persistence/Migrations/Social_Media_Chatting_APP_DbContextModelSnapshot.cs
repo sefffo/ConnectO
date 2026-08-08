@@ -270,6 +270,71 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ParentCommentId", "CreatedAt");
+
+                    b.HasIndex("PostId", "CreatedAt");
+
+                    b.ToTable("Comment");
+                });
+
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.CommentLike", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId1")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("CommentId", "UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("CommentLike");
+                });
+
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -373,6 +438,9 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("ConversationId")
                         .HasColumnType("uuid");
 
@@ -400,6 +468,9 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -420,9 +491,13 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CommentId");
+
                     b.HasIndex("ConversationId");
 
                     b.HasIndex("MessageId");
+
+                    b.HasIndex("PostId");
 
                     b.HasIndex("UploaderId");
 
@@ -539,6 +614,74 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.ToTable("PasswordResetTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Post", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("OriginalPostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte>("PostType")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("QuoteContent")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OriginalPostId");
+
+                    b.HasIndex("AuthorId", "CreatedAt")
+                        .IsDescending(false, true);
+
+                    b.ToTable("Post");
+                });
+
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.PostLike", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId1")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("PostLike");
+                });
+
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -630,6 +773,51 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Comment", b =>
+                {
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "Author")
+                        .WithMany("Comments")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.CommentLike", b =>
+                {
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Comment", "Comment")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Conversation", b =>
                 {
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "CreatedByUser")
@@ -669,6 +857,12 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.MediaAsset", b =>
                 {
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Comment", "Comment")
+                        .WithMany("MediaAssets")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Conversation", "Conversation")
                         .WithMany()
                         .HasForeignKey("ConversationId")
@@ -679,15 +873,25 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
+                        .WithMany("MediaAssets")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "Uploader")
                         .WithMany()
                         .HasForeignKey("UploaderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Comment");
+
                     b.Navigation("Conversation");
 
                     b.Navigation("Message");
+
+                    b.Navigation("Post");
 
                     b.Navigation("Uploader");
                 });
@@ -748,6 +952,43 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Post", b =>
+                {
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "Author")
+                        .WithMany("Posts")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "OriginalPost")
+                        .WithMany("Reposts")
+                        .HasForeignKey("OriginalPostId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Author");
+
+                    b.Navigation("OriginalPost");
+                });
+
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.PostLike", b =>
+                {
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
+                        .WithMany("PostLikes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
+                        .WithMany("PostLikes")
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
@@ -761,13 +1002,30 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.AppUser", b =>
                 {
+                    b.Navigation("CommentLikes");
+
+                    b.Navigation("Comments");
+
                     b.Navigation("ConversationParticipants");
 
                     b.Navigation("MessageReadStatuses");
 
+                    b.Navigation("PostLikes");
+
+                    b.Navigation("Posts");
+
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("SentMessages");
+                });
+
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Comment", b =>
+                {
+                    b.Navigation("CommentLikes");
+
+                    b.Navigation("MediaAssets");
+
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Conversation", b =>
@@ -780,6 +1038,17 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Message", b =>
                 {
                     b.Navigation("ReadStatuses");
+                });
+
+            modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("MediaAssets");
+
+                    b.Navigation("PostLikes");
+
+                    b.Navigation("Reposts");
                 });
 #pragma warning restore 612, 618
         }

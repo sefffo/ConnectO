@@ -25,5 +25,10 @@ namespace Social_Media_Chatting_APP_Persistence.DbContext
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
         public DbSet<MessageReadStatus> MessageReadStatus { get; set; }
         public DbSet<MediaAsset> MediaAssets { get; set; }
+        // add the Social Media Core Feats Tables
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<CommentLike> CommentLikes { get; set; }
+        public DbSet<PostLike> PostLikes { get; set; }
     }
 }
