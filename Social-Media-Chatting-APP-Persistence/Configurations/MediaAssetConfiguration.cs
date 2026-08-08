@@ -30,12 +30,14 @@ public class MediaAssetConfiguration : IEntityTypeConfiguration<MediaAsset>
         builder.HasOne(m=>m.Post)
             .WithMany(p=>p.MediaAssets)
             .HasForeignKey(m=>m.PostId)
-            .OnDelete(DeleteBehavior.SetNull);// on deleting the post, the media asset is deleted too
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);// on deleting the post, the media asset is deleted too
         
         builder.HasOne(m=>m.Comment)
             .WithMany(c=>c.MediaAssets)
             .HasForeignKey(m=>m.CommentId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
         
         builder.Property(m => m.Url).IsRequired();
         builder.Property(m => m.PublicId).IsRequired();

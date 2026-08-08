@@ -856,8 +856,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Comment", "Comment")
                         .WithMany("MediaAssets")
                         .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Conversation", "Conversation")
                         .WithMany()
@@ -872,8 +871,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
                         .WithMany("MediaAssets")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "Uploader")
                         .WithMany()
