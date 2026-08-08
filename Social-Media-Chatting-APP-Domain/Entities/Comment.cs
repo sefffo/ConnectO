@@ -6,7 +6,7 @@ public class Comment : BaseEntity<Guid>
     public Guid PostId { get; set; }
     public Post Post { get; set; }
     // nav pro on who made that comment 
-    public Guid AuthorId { get; set; }
+    public string AuthorId { get; set; }
     public AppUser Author { get; set; }
     
     public string? Content { get; set; } // as it can be an image or video

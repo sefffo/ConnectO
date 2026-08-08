@@ -39,6 +39,8 @@ public class MediaAsset : BaseEntity<Guid>
     // nav props for the Social media Feats 
     
     public Post Post { set; get; }
+    public Guid PostId { set; get; }
+    public Guid CommentId { set; get; }
     public Comment Comment { set; get; }    
     
 }
