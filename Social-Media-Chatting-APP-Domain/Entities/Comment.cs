@@ -9,7 +9,7 @@ public class Comment : BaseEntity<Guid>
     public Guid AuthorId { get; set; }
     public AppUser Author { get; set; }
     
-    public string? Conetnt { get; set; } // as it can be an image or video
+    public string? Content { get; set; } // as it can be an image or video
     
     public DateTime CreatedAt { set; get; }
     public DateTime UpdatedAt { set; get; }
