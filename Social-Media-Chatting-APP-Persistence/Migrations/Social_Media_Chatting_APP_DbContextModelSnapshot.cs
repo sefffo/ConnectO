@@ -310,7 +310,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
                     b.HasIndex("PostId", "CreatedAt");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.CommentLike", b =>
@@ -325,14 +325,13 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId1")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("CommentId", "UserId");
 
                     b.HasIndex("UserId1");
 
-                    b.ToTable("CommentLike");
+                    b.ToTable("CommentLikes");
                 });
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.Conversation", b =>
@@ -657,7 +656,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.HasIndex("AuthorId", "CreatedAt")
                         .IsDescending(false, true);
 
-                    b.ToTable("Post");
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.PostLike", b =>
@@ -672,14 +671,13 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId1")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("PostId", "UserId");
 
                     b.HasIndex("UserId1");
 
-                    b.ToTable("PostLike");
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.RefreshToken", b =>
@@ -809,9 +807,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
                         .WithMany("CommentLikes")
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Comment");
 
@@ -860,7 +856,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Comment", "Comment")
                         .WithMany("MediaAssets")
                         .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Conversation", "Conversation")
@@ -876,7 +872,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
                         .WithMany("MediaAssets")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "Uploader")
@@ -980,9 +976,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
                         .WithMany("PostLikes")
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Post");
 
