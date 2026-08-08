@@ -434,7 +434,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CommentId")
+                    b.Property<Guid?>("CommentId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ConversationId")
@@ -464,7 +464,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("PostId")
+                    b.Property<Guid?>("PostId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("PublicId")
@@ -658,26 +658,18 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.PostLike", b =>
                 {
-                    b.Property<string>("PostId")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LikedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("PostId1")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("text");
-
                     b.HasKey("PostId", "UserId");
 
-                    b.HasIndex("PostId1");
-
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("PostLikes");
                 });
@@ -972,13 +964,15 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                 {
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
                         .WithMany("PostLikes")
-                        .HasForeignKey("PostId1")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
                         .WithMany("PostLikes")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
 

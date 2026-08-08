@@ -9,10 +9,10 @@ public class PostLike
     // relation with the user first 
     
     
-    public string PostId { get; set; }
+    public Guid PostId { get; set; }
     public Post Post { get; set; } //=> composite key 
     
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
     public AppUser User { get; set; } //=> composite key 
     
     public DateTime LikedAt { set; get; }
