@@ -9,6 +9,10 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
 {
     public void Configure(EntityTypeBuilder<Post> builder)
     {
+
+        builder.HasIndex(p =>new { p.AuthorId , p.CreatedAt}).IsDescending(false,true);
+        builder.HasIndex(p => p.OriginalPostId);
+        
         builder.Property(p => p.PostType).ToString();
         builder.Property(p => p.Content).HasMaxLength(3000);
         builder.Property(p => p.QuoteContent).HasMaxLength(1000);

@@ -8,6 +8,18 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> builder)
     {
+
+        builder.HasIndex(c => new
+        {
+            c.PostId,
+            c.CreatedAt
+        }).IsDescending(false,false);
+        
+        // Fetch replies to a specific comment, oldest first
+        builder.HasIndex(c => new { c.ParentCommentId, c.CreatedAt })
+            .IsDescending(false, false);
+        
+        
         builder.HasOne(c => c.ParentComment)
             .WithMany(c => c.Replies)
             .HasForeignKey(c => c.ParentCommentId)
