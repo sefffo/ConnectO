@@ -318,18 +318,15 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.Property<Guid>("CommentId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LikedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("text");
-
                     b.HasKey("CommentId", "UserId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("CommentLikes");
                 });
@@ -661,8 +658,8 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.PostLike", b =>
                 {
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("PostId")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -670,10 +667,15 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                     b.Property<DateTime>("LikedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("PostId1")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("UserId1")
                         .HasColumnType("text");
 
                     b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("PostId1");
 
                     b.HasIndex("UserId1");
 
@@ -807,7 +809,9 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.AppUser", "User")
                         .WithMany("CommentLikes")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Comment");
 
@@ -968,7 +972,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                 {
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Post", "Post")
                         .WithMany("PostLikes")
-                        .HasForeignKey("PostId")
+                        .HasForeignKey("PostId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

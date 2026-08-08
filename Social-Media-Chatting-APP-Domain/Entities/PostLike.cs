@@ -9,7 +9,7 @@ public class PostLike
     // relation with the user first 
     
     
-    public Guid PostId { get; set; }
+    public string PostId { get; set; }
     public Post Post { get; set; } //=> composite key 
     
     public Guid UserId { get; set; }
