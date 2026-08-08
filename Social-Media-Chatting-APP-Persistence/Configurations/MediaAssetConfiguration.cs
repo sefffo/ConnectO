@@ -27,6 +27,16 @@ public class MediaAssetConfiguration : IEntityTypeConfiguration<MediaAsset>
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false);
 
+        builder.HasOne(m=>m.Post)
+            .WithMany(p=>p.MediaAssets)
+            .HasForeignKey(m=>m.PostId)
+            .OnDelete(DeleteBehavior.Cascade);// on deleting the post, the media asset is deleted too
+        
+        builder.HasOne(m=>m.Comment)
+            .WithMany(c=>c.MediaAssets)
+            .HasForeignKey(m=>m.CommentId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.Property(m => m.Url).IsRequired();
         builder.Property(m => m.PublicId).IsRequired();
         builder.Property(m => m.OriginalFileName).IsRequired();

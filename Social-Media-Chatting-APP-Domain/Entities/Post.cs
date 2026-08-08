@@ -19,17 +19,17 @@ public class Post : BaseEntity<Guid>
     public string? QuoteContent { set; get; }
     
     public DateTime CreatedAt { set; get; }
-    public DateTime UpdatedAt { set; get; } // for post edits and deletes
+    public DateTime? UpdatedAt { set; get; } // for post-edits and deletes
     public bool IsDeleted { set; get; }
     public DateTime? DeletedAt { set; get; }
-    //nav props if i have a media upload 
-    //media assets => for a post content if image or video 
+    //nav props if I have a media upload 
+    //media assets => for a post-content if image or video 
     public ICollection<MediaAsset> MediaAssets { set; get; } = [];
     // comments 
     public ICollection<Comment> Comments { set; get; } = [];
     //Likes 
     public ICollection<PostLike> PostLikes { set; get; } = [];
-    //Self relation for the reposts 
+    //Self-relation for the reposts 
     public ICollection<Post> Reposts { set; get; } = [];
     
 }

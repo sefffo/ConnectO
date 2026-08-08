@@ -12,11 +12,11 @@ public class Comment : BaseEntity<Guid>
     public string? Content { get; set; } // as it can be an image or video
     
     public DateTime CreatedAt { set; get; }
-    public DateTime UpdatedAt { set; get; }
+    public DateTime? UpdatedAt { set; get; }
     public bool IsDeleted { set; get; }
     public DateTime? DeletedAt { set; get; }
     
-    //media assets => for a post content if image or video 
+    //media assets => for a post-content if image or video 
     public ICollection<MediaAsset> MediaAssets { set; get; } = [];
     // for the replies to the comment
     // for the parent comment
