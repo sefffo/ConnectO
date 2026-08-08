@@ -53,5 +53,19 @@ namespace Social_Media_Chatting_APP_Domain.Entities
         /// so we need to have one-to-many Realtionship   
         /// </summary>
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+        
+        
+        // Social Media Feats
+        
+        public ICollection<Post> Posts { set; get; } = [];
+        
+        public ICollection<Comment> Comments { set; get; } = [];
+        
+        public ICollection<CommentLike> CommentLikes { set; get; } = [];
+        
+        public ICollection<PostLike> PostLikes { set; get; } = [];
+        
+        
+        
     }
 }

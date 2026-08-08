@@ -35,4 +35,10 @@ public class MediaAsset : BaseEntity<Guid>
 
     //nav prop
     public Conversation? Conversation { set; get; }
+    
+    // nav props for the Social media Feats 
+    
+    public Post Post { set; get; }
+    public Comment Comment { set; get; }    
+    
 }
