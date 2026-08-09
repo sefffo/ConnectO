@@ -13,4 +13,5 @@ public interface ISpecification<TEntity>
     int Take { get; }
     int Skip { get; }
     public bool IsPagingEnabled { get; }
+    List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> ThenIncludes { get; }
 }

@@ -13,6 +13,11 @@ public class BaseSpecification<TEntity> : ISpecification<TEntity>
     public int Skip { get; private set; }
     public bool IsPagingEnabled { get; private set;}
     
+    public List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> ThenIncludes { get; }
+    
+    protected void AddThenIncludes(Func<IQueryable<TEntity>, IQueryable<TEntity>> includeChain)
+        => ThenIncludes.Add(includeChain);
+
     //we must implement 2 different constructors for the base specification
     protected BaseSpecification(){}
     

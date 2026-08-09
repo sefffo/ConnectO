@@ -28,6 +28,8 @@ public class SpecificationEvaluator<T> where T : class
             {
                 queryable = queryable.Include(include);
             }
+            foreach (var thenInclude in specification.ThenIncludes)
+                queryable = thenInclude(queryable);
         }
 
         if (specification.IncludesStrings != null)

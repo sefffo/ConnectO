@@ -1,4 +1,5 @@
-﻿using Social_Media_Chatting_APP_Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Specifications;
 
 namespace Social_Media_Chatting_APP_Service.Specification.Posts;
@@ -12,5 +13,10 @@ public class PostDetailsSpecifications : BaseSpecification<Post>
        AddIncludes(p => p.Reposts);
        AddIncludes(p=>p.MediaAssets);
        AddIncludes(p=>p.PostLikes);
+       AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+           .ThenInclude(op => op.Author));
+
+       AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+           .ThenInclude(op => op.MediaAssets));
     }
 }
