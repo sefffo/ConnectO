@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Application-Core/">
     <Project Path="Social-Media-Chatting-APP-Domain/Social-Media-Chatting-APP-Domain.csproj" />
+    <Project Path="Social-Media-Chatting-APP-Service.Tests/Social-Media-Chatting-APP-Service.Tests.csproj" />
     <Project Path="Social-Media-Chatting-APP-Service/Social-Media-Chatting-APP-Service.csproj" />
     <Project Path="Social-Media-Chatting-APP-ServiceAbstraction/Social-Media-Chatting-APP-ServiceAbstraction.csproj" />
   </Folder>

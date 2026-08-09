@@ -1,0 +1,16 @@
+﻿using Social_Media_Chatting_APP_Domain.Entities;
+using Social_Media_Chatting_APP_Domain.Specifications;
+
+namespace Social_Media_Chatting_APP_Service.Specification.Posts;
+
+public class PostDetailsSpecifications : BaseSpecification<Post>
+{
+    public PostDetailsSpecifications(Guid postId) : base(p=>p.Id == postId && p.IsDeleted == false)
+    {
+       AddIncludes(p => p.Author);
+       AddIncludes(p => p.Comments);
+       AddIncludes(p => p.Reposts);
+       AddIncludes(p=>p.MediaAssets);
+       AddIncludes(p=>p.PostLikes);
+    }
+}
