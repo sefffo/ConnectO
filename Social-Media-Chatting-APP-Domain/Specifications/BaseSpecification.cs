@@ -13,7 +13,7 @@ public class BaseSpecification<TEntity> : ISpecification<TEntity>
     public int Skip { get; private set; }
     public bool IsPagingEnabled { get; private set;}
     
-    public List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> ThenIncludes { get; }
+    public List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> ThenIncludes { get; }= new();
     
     protected void AddThenIncludes(Func<IQueryable<TEntity>, IQueryable<TEntity>> includeChain)
         => ThenIncludes.Add(includeChain);
