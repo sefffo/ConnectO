@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Conversations\Commands\" />
+    <Folder Include="Features\Posts\Queries\" />
   </ItemGroup>
 
 </Project>
