@@ -2,10 +2,8 @@
 using MediatR;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
-using Social_Media_Chatting_APP_Service.Specification.Posts;
 using Social_Media_Chatting_APP_SharedLibrary.Dto_s.CommentDTO_s;
 using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
-using StackExchange.Redis;
 
 namespace Social_Media_Chatting_APP_Service.Features.Comments.Commands.CreateComment;
 
@@ -16,13 +14,21 @@ public class CreateCommentCommandHandler(
 {
     public async Task<Result<CommentDto>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
-        var commentRepo = unitOfWork.GetRepository<Comment, Guid>();
-        //check the content of the comment first
-        if (request.Dto.Content is null && request.Dto.MediaAsset is null)
+        
+        // ya 7mar ma lazem akeed nt'ked ehna hn3ml comment feeen
+        var postRepo = unitOfWork.GetRepository<Post,Guid>();
+        var post = await postRepo.GetByIdAsync(request.Dto.PostId);
+        if (post is null)
         {
-            return Error.BadRequest("Comment.EmptyContent", "Content cannot be null");
+            return Error.NotFound("Comment.PotsNotFound","Post not found");
         }
 
+        if (post.IsDeleted == true)
+        {
+            return Error.BadRequest("Comment.PotsDeleted", "Post is deleted");
+        }
+        var commentRepo = unitOfWork.GetRepository<Comment, Guid>();
+        //check the content of the comment first
         if (string.IsNullOrEmpty(request.Dto.Content) && request.Dto.MediaAsset is null)
         {
             return  Error.BadRequest("Comment.EmptyContent", "Content cannot be null");
@@ -33,14 +39,19 @@ public class CreateCommentCommandHandler(
         if (request.Dto.ParentCommentId is not null)
         {
             var isParentCommentFound = await  commentRepo.FindAsync(c=>c.Id == request.Dto.ParentCommentId);
-            if (isParentCommentFound == null && isParentCommentFound.PostId != request.Dto.PostId)
+            if (isParentCommentFound == null )
             {
-                return;
+                return Error.NotFound("Comment.NotFound", "Parent comment id Not Found");
+            }
+
+            if (isParentCommentFound .PostId != request.Dto.PostId)
+            {
+                return Error.BadRequest("Comment.badRequest", "not matched post id");
             }
 
             if (isParentCommentFound.IsDeleted == true)
             {
-                return Error.Forbidden("Comment.Forbidden", "user can't reply on deleted comment");
+                return Error.NotFound("Comment.NotFound", "Parent comment no longer exists");
             }        
         }
         
