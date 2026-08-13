@@ -34,8 +34,8 @@ public class MediaAssetConfiguration : IEntityTypeConfiguration<MediaAsset>
             .IsRequired(false);// on deleting the post, the media asset is deleted too
         
         builder.HasOne(m=>m.Comment)
-            .WithMany(c=>c.MediaAssets)
-            .HasForeignKey(m=>m.CommentId)
+            .WithOne(c=>c.MediaAsset)
+            .HasForeignKey<MediaAsset>(m=>m.CommentId)
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false);
         

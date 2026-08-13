@@ -17,7 +17,7 @@ public class Comment : BaseEntity<Guid>
     public DateTime? DeletedAt { set; get; }
     
     //media assets => for a post-content if image or video 
-    public ICollection<MediaAsset> MediaAssets { set; get; } = [];
+    public MediaAsset? MediaAsset { set; get; }
     // for the replies to the comment
     // for the parent comment
     public Guid? ParentCommentId { set; get; }

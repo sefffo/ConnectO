@@ -15,6 +15,6 @@ public class CommentRepliesSpecification : BaseSpecification<Comment>
         AddIncludes(c=>c.CommentLikes);
         ApplyOrderByDescending(c=>c.CreatedAt);
         AddIncludes(c=>c.Replies);
-        AddIncludes(c=>c.MediaAssets);
+        AddIncludes(c=>c.MediaAsset);
     }
 }
