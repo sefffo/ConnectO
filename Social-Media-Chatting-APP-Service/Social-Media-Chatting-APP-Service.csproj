@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Comments\Queries\" />
     <Folder Include="Features\Conversations\Commands\" />
   </ItemGroup>
 
