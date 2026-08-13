@@ -16,12 +16,6 @@ public class SoftDeletePostCommandHandler(
     public async Task<Result<string>> Handle(SoftDeletePostCommand request, CancellationToken cancellationToken)
     {
         var postRepo = unitOfWork.GetRepository<Post, Guid>();
-
-        var user = await userManager.FindByIdAsync(request.AuthorId.ToString());
-        if (user is null)
-        {
-            return Error.Forbidden("User.Forbidden", "User not Allowed to delete this post");    
-        }
         
         var post = await postRepo.GetByIdAsync(request.PostId);
         if (post is null)
