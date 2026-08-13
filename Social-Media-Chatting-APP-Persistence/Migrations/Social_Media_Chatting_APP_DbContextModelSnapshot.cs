@@ -487,7 +487,8 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CommentId");
+                    b.HasIndex("CommentId")
+                        .IsUnique();
 
                     b.HasIndex("ConversationId");
 
@@ -850,8 +851,8 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
             modelBuilder.Entity("Social_Media_Chatting_APP_Domain.Entities.MediaAsset", b =>
                 {
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Comment", "Comment")
-                        .WithMany("MediaAssets")
-                        .HasForeignKey("CommentId")
+                        .WithOne("MediaAsset")
+                        .HasForeignKey("Social_Media_Chatting_APP_Domain.Entities.MediaAsset", "CommentId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Social_Media_Chatting_APP_Domain.Entities.Conversation", "Conversation")
@@ -1013,7 +1014,7 @@ namespace Social_Media_Chatting_APP_Persistence.Migrations
                 {
                     b.Navigation("CommentLikes");
 
-                    b.Navigation("MediaAssets");
+                    b.Navigation("MediaAsset");
 
                     b.Navigation("Replies");
                 });

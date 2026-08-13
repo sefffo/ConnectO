@@ -11,7 +11,7 @@ public class PostCommentSpecification : BaseSpecification<Comment>
         AddIncludes(c => c.Author);
         AddIncludes(c => c.CommentLikes);
         ApplyOrderBy(c=>c.CreatedAt);
-        //AddIncludes(c => c.Replies);
+        AddIncludes(c => c.Replies);
         ApplyTake(size+1);
         AddIncludes(c => c.MediaAsset);
     }
