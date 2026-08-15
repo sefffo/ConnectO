@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Social_Media_Chatting_APP_Service.Features.Posts.Commands.CreatePost;
 using Social_Media_Chatting_APP_Service.Features.Posts.Commands.SoftDeletePost;
@@ -15,6 +16,7 @@ namespace Social_Media_Chatting_APP_Presentation.Controllers;
 public class PostController(ISender sender) : ApiBaseController
 {
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Result<PostDto>>> Post(CreatePostDto createPostDto)
     {
         // find the user and check first 
@@ -27,6 +29,7 @@ public class PostController(ISender sender) : ApiBaseController
     }
 
     [HttpDelete("{postId}")]
+    [Authorize]
     public async Task<ActionResult<Result<PostDto>>> Post([FromQuery]Guid postId)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -38,6 +41,7 @@ public class PostController(ISender sender) : ApiBaseController
     }
 
     [HttpGet("{postId}")]
+    [Authorize]
     public async Task<ActionResult<Result<PostDto>>> GetPostById([FromQuery] Guid postId)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -45,6 +49,7 @@ public class PostController(ISender sender) : ApiBaseController
         return HandleResult(result);
     }
 
+    [Authorize]
     [HttpGet("posts/user/{authorId}")]
     public async Task<ActionResult<Result<PostFeedDto>>> GetUserPosts([FromRoute] string authorId , [FromQuery] DateTime? cursor , [FromQuery] int limit = 20)
     {
