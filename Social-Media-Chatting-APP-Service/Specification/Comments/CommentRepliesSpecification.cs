@@ -10,11 +10,11 @@ public class CommentRepliesSpecification : BaseSpecification<Comment>
         
         )
     {
-        ApplyTake(size);
+        ApplyTake(size+1);
         AddIncludes(c=>c.Author);
         AddIncludes(c=>c.CommentLikes);
         ApplyOrderByDescending(c=>c.CreatedAt);
-        AddIncludes(c=>c.Replies);
+        //AddIncludes(c=>c.Replies);
         AddIncludes(c=>c.MediaAsset);
     }
 }
