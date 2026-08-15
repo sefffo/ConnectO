@@ -12,7 +12,7 @@ using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
 namespace Social_Media_Chatting_APP_Presentation.Controllers;
 
 [ApiController]
-[Microsoft.AspNetCore.Components.Route("api/[controller]")]
+[Route("api/[controller]")]
 public class PostController(ISender sender) : ApiBaseController
 {
     [HttpPost]
@@ -30,7 +30,7 @@ public class PostController(ISender sender) : ApiBaseController
 
     [HttpDelete("{postId}")]
     [Authorize]
-    public async Task<ActionResult<Result<PostDto>>> Post([FromQuery]Guid postId)
+    public async Task<ActionResult<Result<PostDto>>> Post([FromRoute]Guid postId)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new SoftDeletePostCommand(
@@ -42,7 +42,7 @@ public class PostController(ISender sender) : ApiBaseController
 
     [HttpGet("{postId}")]
     [Authorize]
-    public async Task<ActionResult<Result<PostDto>>> GetPostById([FromQuery] Guid postId)
+    public async Task<ActionResult<Result<PostDto>>> GetPostById([FromRoute] Guid postId)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new GetPostByIdQuery(postId , user));
