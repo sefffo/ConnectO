@@ -3,7 +3,7 @@ using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
 
-namespace Social_Media_Chatting_APP_Service.Features.Likes.Commands.LikePost;
+namespace Social_Media_Chatting_APP_Service.Features.Likes.Commands.LikeComment;
 
 public class ToggleLikeCommentCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<ToggleLikeCommentCommand, Result<bool>>
