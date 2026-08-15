@@ -1,4 +1,6 @@
-﻿using Social_Media_Chatting_APP_Domain.Entities;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_Persistence.DbContext;
 
@@ -29,6 +31,19 @@ namespace Social_Media_Chatting_APP_Persistence.Repositories
 
         public async Task<int> SaveChangesAsync()
            => await context.SaveChangesAsync();
+        
+        
+        public async Task<TEntity?> FindAsync<TEntity>(Expression<Func<TEntity, bool>> predicate) 
+            where TEntity : class
+            => await context.Set<TEntity>().FirstOrDefaultAsync(predicate);
+
+        public async Task AddAsync<TEntity>(TEntity entity) 
+            where TEntity : class
+            => await context.Set<TEntity>().AddAsync(entity);
+
+        public void Remove<TEntity>(TEntity entity) 
+            where TEntity : class
+            => context.Set<TEntity>().Remove(entity);
 
 
     }
