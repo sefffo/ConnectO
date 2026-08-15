@@ -1,7 +1,7 @@
 ﻿using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Specifications;
 
-namespace Social_Media_Chatting_APP_Service.Specification.Posts;
+namespace Social_Media_Chatting_APP_Service.Specification.Comments;
 
 public class CommentRepliesSpecification : BaseSpecification<Comment>
 {

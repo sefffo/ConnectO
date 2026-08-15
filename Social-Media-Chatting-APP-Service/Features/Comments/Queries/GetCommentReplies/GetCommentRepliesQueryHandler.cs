@@ -2,7 +2,7 @@
 using MediatR;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
-using Social_Media_Chatting_APP_Service.Specification.Posts;
+using Social_Media_Chatting_APP_Service.Specification.Comments;
 using Social_Media_Chatting_APP_SharedLibrary.Dto_s.CommentDTO_s;
 using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
 
