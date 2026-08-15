@@ -4,4 +4,4 @@ using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
 
 namespace Social_Media_Chatting_APP_Service.Features.Comments.Commands.CreateComment;
 
-public record CreateCommentCommand(Guid AuthorId, CreateCommentDto Dto) : IRequest<Result<CommentDto>>;
+public record CreateCommentCommand(string AuthorId, CreateCommentDto Dto) : IRequest<Result<CommentDto>>;
