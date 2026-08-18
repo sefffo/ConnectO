@@ -23,6 +23,7 @@ public class PostMappingProfile : Profile
         // Post → PostDto
         // Note: LikeCount, CommentCount, RepostCount, IsLikedByMe are computed manually in handlers
         CreateMap<Post, PostDto>()
+            .MaxDepth(2)
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author))
             .ForMember(dest => dest.MediaAssets, opt => opt.MapFrom(src => src.MediaAssets))
             .ForMember(dest => dest.OriginalPost, opt => opt.MapFrom(src => src.OriginalPost))

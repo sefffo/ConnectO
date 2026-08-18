@@ -18,5 +18,14 @@ public class PostDetailsSpecifications : BaseSpecification<Post>
 
        AddThenIncludes(q => q.Include(p => p.OriginalPost!)
            .ThenInclude(op => op.MediaAssets));
+       
+       AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+           .ThenInclude(op => op.PostLikes));
+
+       AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+           .ThenInclude(op => op.Comments));
+
+       AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+           .ThenInclude(op => op.Reposts));
     }
 }

@@ -18,7 +18,7 @@ public class PostController(ISender sender) : ApiBaseController
 {
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<Result<PostDto>>> Post(CreatePostDto createPostDto)
+    public async Task<ActionResult<Result<PostDto>>> Post([FromBody]CreatePostDto createPostDto)
     {
         // find the user and check first 
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
