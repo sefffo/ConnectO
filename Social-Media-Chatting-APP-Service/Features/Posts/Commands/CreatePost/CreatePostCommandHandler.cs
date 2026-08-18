@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Entities.Enums;
 using Social_Media_Chatting_APP_Domain.Interfaces;
@@ -10,17 +11,23 @@ namespace Social_Media_Chatting_APP_Service.Features.Posts.Commands.CreatePost;
 
 public class CreatePostCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper
+    IMapper mapper,
+    UserManager<AppUser> userManager
 ) : IRequestHandler<CreatePostCommand, Result<PostDto>>
 {
     public async Task<Result<PostDto>> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
         var postRepo = unitOfWork.GetRepository<Post, Guid>();
-
+        
+        
+        var author = await userManager.FindByIdAsync(request.AuthorId);
+        if (author is null)
+            return Error.NotFound("User.NotFound", "Author not found");
 
         var post = new Post()
         {
             AuthorId = request.AuthorId,
+            Author = author,
             Content = request.Dto.Content,
             QuoteContent = request.Dto.QuoteContent,
             PostType = request.Dto.PostType,

@@ -20,6 +20,8 @@ public class GetPostByIdQueryHandler(
 
         var spec = new PostDetailsSpecifications(request.PostId);
         var post = await postRepo.FindAsync(spec);
+        if (post.Author is null)
+            return Error.NotFound("Post.Author.NotFound", $"Author not loaded — AuthorId: {post.AuthorId}");
         if (post is null || post.IsDeleted)
         {
             return Error.NotFound("Post.NotFound","Post not found");
