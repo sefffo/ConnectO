@@ -54,7 +54,12 @@ public static class AuthRegistration
             })
             // Cookie scheme — Google middleware uses this to temporarily store
             // the user's claims after the OAuth exchange, before our callback reads them.
-            .AddCookie()
+            .AddCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.HttpOnly = true;
+            })
             // Google OAuth — handles the redirect to Google and the code exchange.
             // ClientId and ClientSecret come from App settings .json > Google section.
             .AddGoogle(options =>
