@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_SharedLibrary.Dto_s.CommentDTO_s;
@@ -9,42 +10,45 @@ namespace Social_Media_Chatting_APP_Service.Features.Comments.Commands.CreateCom
 
 public class CreateCommentCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper
-) : IRequestHandler<CreateCommentCommand, Result<CommentDto>>
+    IMapper mapper,
+    UserManager<AppUser> userManager) : IRequestHandler<CreateCommentCommand, Result<CommentDto>>
 {
     public async Task<Result<CommentDto>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
-        
         // ya 7mar ma lazem akeed nt'ked ehna hn3ml comment feeen
-        var postRepo = unitOfWork.GetRepository<Post,Guid>();
+        var postRepo = unitOfWork.GetRepository<Post, Guid>();
         var post = await postRepo.GetByIdAsync(request.Dto.PostId);
+        var author = await userManager.FindByIdAsync(request.AuthorId);
+        if (author is null)
+            return Error.NotFound("Comment.AuthorNotFound", "User not found");
         if (post is null)
         {
-            return Error.NotFound("Comment.PotsNotFound","Post not found");
+            return Error.NotFound("Comment.PotsNotFound", "Post not found");
         }
 
         if (post.IsDeleted == true)
         {
             return Error.BadRequest("Comment.PotsDeleted", "Post is deleted");
         }
+
         var commentRepo = unitOfWork.GetRepository<Comment, Guid>();
         //check the content of the comment first
         if (string.IsNullOrEmpty(request.Dto.Content) && request.Dto.MediaAsset is null)
         {
-            return  Error.BadRequest("Comment.EmptyContent", "Content cannot be null");
+            return Error.BadRequest("Comment.EmptyContent", "Content cannot be null");
         }
-        
+
         // check if the parentId is Found  in the comment db and if found i need 
         // also check if it's related to this post 
         if (request.Dto.ParentCommentId is not null)
         {
-            var isParentCommentFound = await  commentRepo.FindAsync(c=>c.Id == request.Dto.ParentCommentId);
-            if (isParentCommentFound == null )
+            var isParentCommentFound = await commentRepo.FindAsync(c => c.Id == request.Dto.ParentCommentId);
+            if (isParentCommentFound == null)
             {
                 return Error.NotFound("Comment.NotFound", "Parent comment id Not Found");
             }
 
-            if (isParentCommentFound .PostId != request.Dto.PostId)
+            if (isParentCommentFound.PostId != request.Dto.PostId)
             {
                 return Error.BadRequest("Comment.badRequest", "not matched post id");
             }
@@ -52,14 +56,15 @@ public class CreateCommentCommandHandler(
             if (isParentCommentFound.IsDeleted == true)
             {
                 return Error.NotFound("Comment.NotFound", "Parent comment no longer exists");
-            }        
+            }
         }
-        
-        
+
+
         var comment = new Comment()
         {
             Content = request.Dto.Content,
-            AuthorId = request.AuthorId.ToString(),
+            AuthorId = request.AuthorId,
+            Author = author,
             CreatedAt = DateTime.UtcNow,
             ParentCommentId = request.Dto.ParentCommentId,
             PostId = request.Dto.PostId
@@ -75,7 +80,8 @@ public class CreateCommentCommandHandler(
         {
             var mediaAssetRepo = unitOfWork.GetRepository<MediaAsset, Guid>();
             //as the upload is done first we take the media asset by finding it (by its public id) and which comment is related to it 
-            var asset = await mediaAssetRepo.FindAsync(m => m.PublicId == request.Dto.MediaAsset.PublicId && !m.IsDeleted);
+            var asset = await mediaAssetRepo.FindAsync(m =>
+                m.PublicId == request.Dto.MediaAsset.PublicId && !m.IsDeleted);
             //u add that as  a ref for it in teh DB in the MA table  
             if (asset is not null)
             {
