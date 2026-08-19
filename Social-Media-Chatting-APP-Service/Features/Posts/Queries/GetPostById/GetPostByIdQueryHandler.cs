@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Social_Media_Chatting_APP_Domain.Entities;
@@ -20,18 +20,24 @@ public class GetPostByIdQueryHandler(
 
         var spec = new PostDetailsSpecifications(request.PostId);
         var post = await postRepo.FindAsync(spec);
-        if (post.Author is null)
-            return Error.NotFound("Post.Author.NotFound", $"Author not loaded — AuthorId: {post.AuthorId}");
         if (post is null || post.IsDeleted)
         {
             return Error.NotFound("Post.NotFound","Post not found");
         }
+
         var dto = mapper.Map<PostDto>(post);
+
+        // Resolve OriginalPost manually — AutoMapper can't safely handle
+        // self-referential Post → PostDto mapping when OriginalPost is null.
+        // This is consistent with how LikeCount, CommentCount etc. are handled below.
+        if (post.OriginalPost is not null)
+            dto.OriginalPost = mapper.Map<PostDto>(post.OriginalPost);
+
         dto.IsLikedByMe = post.PostLikes.Any(p => p.UserId == request.AuthorId);
         dto.LikeCount = post.PostLikes.Count;
-        dto.CommentCount = post.Comments.Count(c=>c.IsDeleted == false);
-        dto.RepostCount = post.Reposts.Count(r=>r.IsDeleted == false);
+        dto.CommentCount = post.Comments.Count(c => c.IsDeleted == false);
+        dto.RepostCount = post.Reposts.Count(r => r.IsDeleted == false);
+
         return Result<PostDto>.Ok(dto);
-        
     }
 }
