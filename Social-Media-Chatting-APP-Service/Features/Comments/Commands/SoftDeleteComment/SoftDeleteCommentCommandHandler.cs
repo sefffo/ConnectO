@@ -30,7 +30,8 @@ public class SoftDeleteCommentCommandHandler (
             return Error.Forbidden("Comment.AuthorId", "you can't delete this comment");
         }
         
-        comment.DeletedAt = DateTime.Now;
+        comment.DeletedAt = DateTime.UtcNow;
+        comment.IsDeleted = true;
         commentRepo.Update(comment);
         await unitOfWork.SaveChangesAsync();
         return  Result<string>.Ok("Comment.Deleted");
