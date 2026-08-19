@@ -26,9 +26,10 @@ public class PostMappingProfile : Profile
         // OriginalPost is ignored here to prevent AutoMapper from recursing into
         // a self-referential Post → PostDto mapping which crashes on null navigation properties.
         CreateMap<Post, PostDto>()
+            .MaxDepth(2)
             .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author))
             .ForMember(dest => dest.MediaAssets, opt => opt.MapFrom(src => src.MediaAssets))
-            .ForMember(dest => dest.OriginalPost, opt => opt.Ignore())
+            .ForMember(dest => dest.OriginalPost, opt => opt.MapFrom(src => src.OriginalPost))
             .ForMember(dest => dest.LikeCount, opt => opt.Ignore())
             .ForMember(dest => dest.CommentCount, opt => opt.Ignore())
             .ForMember(dest => dest.RepostCount, opt => opt.Ignore())

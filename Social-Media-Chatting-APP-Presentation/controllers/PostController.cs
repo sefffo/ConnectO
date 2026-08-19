@@ -62,6 +62,7 @@ public class PostController(ISender sender) : ApiBaseController
 
     // create Repost 
     [HttpPost("repost")]
+    [Authorize]
     public async Task<ActionResult<Result<PostDto>>> CreateRepost([FromBody] CreateRepostDto createRepostDto)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);

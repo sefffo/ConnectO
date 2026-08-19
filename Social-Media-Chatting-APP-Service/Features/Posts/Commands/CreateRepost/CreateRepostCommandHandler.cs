@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Entities.Enums;
 using Social_Media_Chatting_APP_Domain.Interfaces;
@@ -10,11 +11,16 @@ namespace Social_Media_Chatting_APP_Service.Features.Posts.Commands.CreateRepost
 
 public class CreateRepostCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper) : IRequestHandler<CreateRepostCommand, Result<PostDto>>
+    IMapper mapper,
+    UserManager<AppUser> userManager) : IRequestHandler<CreateRepostCommand, Result<PostDto>>
 {
     public async Task<Result<PostDto>> Handle(CreateRepostCommand request, CancellationToken cancellationToken)
     {
         var postRepo = unitOfWork.GetRepository<Post, Guid>();
+
+        var author = await userManager.FindByIdAsync(request.AuthorId);
+        if (author is null)
+            return Error.NotFound("User.NotFound", "Author not found");
 
         // 1. Fetch and validate target post first — before using it
         var ogPost = await postRepo.GetByIdAsync(request.Dto.OriginalPostId);
@@ -48,6 +54,7 @@ public class CreateRepostCommandHandler(
         var post = new Post()
         {
             AuthorId = request.AuthorId,
+            Author = author,
             PostType = request.Dto.PostType,
             OriginalPostId = request.Dto.PostType == PostType.Repost
                 ? resolvedId
