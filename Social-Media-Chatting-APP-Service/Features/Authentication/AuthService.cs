@@ -608,7 +608,9 @@ public class AuthService(
                 DisplayName = name,
                 IsGoogleAccount = true,
                 IsOnline = false,
-                IsTwoFactorSetup = false,
+                IsTwoFactorSetup = false,  
+                Gender = "Unspecified",       // ← add this
+                EmailConfirmed = true,        // ← also add this — Google already verified the email
                 CreatedAt = DateTime.UtcNow
             };
 
