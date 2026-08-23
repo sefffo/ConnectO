@@ -16,7 +16,7 @@ public class GetFeedQueryHandler(
 {
     public async Task<Result<FeedDto>> Handle(GetFeedQuery request, CancellationToken cancellationToken)
     {
-        var friendshipRepo = unitOfWork.GetRepository<Friendship, Guid>();
+        var friendshipRepo = unitOfWork.GetRepository<Social_Media_Chatting_APP_Domain.Entities.Friendship, Guid>();
         var postRepo       = unitOfWork.GetRepository<Post, Guid>();
 
         // ── Step 1: resolve direct friend IDs ──────────────────────────────────
