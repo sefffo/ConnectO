@@ -90,18 +90,18 @@ public class PostController(ISender sender) : ApiBaseController
     ///   friendsCursor  — DateTime from NextFriendsCursor of the previous response
     ///   discoverPage   — int from NextDiscoverPage of the previous response (default 0)
     /// </summary>
-    //[Authorize]
-    //[HttpGet("feed")]
-    //public async Task<ActionResult<Result<FeedDto>>> GetFeed(
-    //[FromQuery] DateTime? friendsCursor,
-    //[FromQuery] int discoverPage = 0,
-    // [FromQuery] int limit = 20)
-    //{
-    // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-    //var result = await sender.Send(
-    //new GetFeedQuery(userId, friendsCursor, discoverPage, limit));
-    //return HandleResult(result);
-    //}
+    [Authorize]
+    [HttpGet("feed")]
+    public async Task<ActionResult<Result<FeedDto>>> GetFeed(
+        [FromQuery] DateTime? friendsCursor,
+        [FromQuery] int discoverPage = 0,
+        [FromQuery] int limit = 20)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var result = await sender.Send(
+            new GetFeedQuery(userId, friendsCursor, discoverPage, limit));
+        return HandleResult(result);
+    }
 
     // ─── REPOST ───────────────────────────────────────────────────────────────
     [HttpPost("repost")]
