@@ -6,6 +6,7 @@ using Social_Media_Chatting_APP_Service.Features.Posts.Commands.CreatePost;
 using Social_Media_Chatting_APP_Service.Features.Posts.Commands.CreateRepost;
 using Social_Media_Chatting_APP_Service.Features.Posts.Commands.EditPost;
 using Social_Media_Chatting_APP_Service.Features.Posts.Commands.SoftDeletePost;
+using Social_Media_Chatting_APP_Service.Features.Posts.Queries.GetFeed;
 using Social_Media_Chatting_APP_Service.Features.Posts.Queries.GetPostById;
 using Social_Media_Chatting_APP_Service.Features.Posts.Queries.GetUSerPosts;
 using Social_Media_Chatting_APP_SharedLibrary.Dto_s.PostsDTO_s;
@@ -57,6 +58,16 @@ public class PostController(ISender sender) : ApiBaseController
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new GetPostByIdQuery(postId, user));
+        return HandleResult(result);
+    }
+    
+    [Authorize]
+    [HttpGet("feed")]  
+    public async Task<ActionResult<Result<PostFeedDto>>> GetFeed(
+        [FromQuery] DateTime? cursor, [FromQuery] int limit = 20)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await sender.Send(new GetFeedQuery(userId, cursor, limit));
         return HandleResult(result);
     }
 
