@@ -32,7 +32,7 @@ public class EditCommentCommandHandler(
 
         comment.Content = request.Dto.Content;
         comment.UpdatedAt = DateTime.UtcNow;
-
+        commentRepo.Update(comment);
         await unitOfWork.SaveChangesAsync();
 
         var mappedComment = mapper.Map<CommentDto>(comment);

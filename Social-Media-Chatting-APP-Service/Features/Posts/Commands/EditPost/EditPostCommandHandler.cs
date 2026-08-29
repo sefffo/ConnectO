@@ -35,6 +35,8 @@ public class EditPostCommandHandler(
 
         post.UpdatedAt = DateTime.UtcNow;
 
+        postRepo.Update(post);
+
         await unitOfWork.SaveChangesAsync();
 
         var mappedPost = mapper.Map<PostDto>(post);
