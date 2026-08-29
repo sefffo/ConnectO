@@ -1,8 +1,9 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Social_Media_Chatting_APP_Service.Features.Comments.Commands.CreateComment;
+using Social_Media_Chatting_APP_Service.Features.Comments.Commands.EditComment;
 using Social_Media_Chatting_APP_Service.Features.Comments.Commands.SoftDeleteComment;
 using Social_Media_Chatting_APP_Service.Features.Comments.Queries.GetCommentReplies;
 using Social_Media_Chatting_APP_Service.Features.Comments.Queries.GetPostComments;
@@ -21,6 +22,23 @@ public class CommentsController(ISender sender) : ApiBaseController
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new CreateCommentCommand(user, createCommentDto));
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Edit a comment's text content only.
+    /// The media asset attached to a comment is permanently locked.
+    /// To remove the media you must delete the entire comment.
+    /// </summary>
+    [Authorize]
+    [HttpPut("{postId}/comments/{commentId}")]
+    public async Task<ActionResult<Result<CommentDto>>> EditComment(
+        [FromRoute] Guid postId,
+        [FromRoute] Guid commentId,
+        [FromBody] EditCommentDto editCommentDto)
+    {
+        var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await sender.Send(new EditCommentCommand(user, commentId, editCommentDto));
         return HandleResult(result);
     }
 
