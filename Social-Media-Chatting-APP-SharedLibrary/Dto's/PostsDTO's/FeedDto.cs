@@ -11,10 +11,9 @@ namespace Social_Media_Chatting_APP_SharedLibrary.Dto_s.PostsDTO_s;
 ///   HasMoreFriends    — whether more friend posts exist
 ///   HasMoreDiscover   — whether more discover posts exist
 /// </summary>
-public record FeedDto(
-    List<PostDto>  Posts,
-    DateTime?      NextFriendsCursor,
-    int?           NextDiscoverPage,
-    bool           HasMoreFriends,
-    bool           HasMoreDiscover
-);
+public class FeedDto
+{
+    public List<PostDto> Posts { get; set; } = [];
+    public DateTime? NextFriendsCursor { get; set; }
+    public int? NextDiscoverPage { get; set; }
+}
