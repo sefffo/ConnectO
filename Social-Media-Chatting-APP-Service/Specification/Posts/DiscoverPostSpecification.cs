@@ -21,28 +21,22 @@ namespace Social_Media_Chatting_APP_Service.Specification.Posts;
 /// </summary>
 public class DiscoverPostSpecification : BaseSpecification<Post>
 {
-    public DiscoverPostSpecification(
-        List<string> discoverAuthorIds,   // friends-of-friends ids (pre-computed)
-        List<string> excludedIds,         // me + my direct friends + blocked users
-        int size,
-        int skip = 0)
-        : base(p =>
-            discoverAuthorIds.Contains(p.AuthorId) &&
-            !excludedIds.Contains(p.AuthorId) &&
-            p.IsDeleted == false)
-    {
-        AddIncludes(p => p.Author);
-        AddIncludes(p => p.Comments);
-        AddIncludes(p => p.Reposts);
-        AddIncludes(p => p.MediaAssets);
-        AddIncludes(p => p.PostLikes);
-        AddThenIncludes(q => q.Include(p => p.OriginalPost!)
-            .ThenInclude(op => op.Author));
-        AddThenIncludes(q => q.Include(p => p.OriginalPost!)
-            .ThenInclude(op => op.MediaAssets));
-
-        // Popularity = likes + comments — ordered in-memory by handler after fetch
-        // We over-fetch (size * 3) to allow in-memory sorting + pagination
-        ApplyTake(size * 3 + skip);
-    }
+   public DiscoverPostSpecification(
+      List<string> discoverAuthorIds,
+      List<string> excludedIds,
+      int size,
+      int skip =0
+      ) : base( p=>discoverAuthorIds.Contains(p.AuthorId)&&!excludedIds.Contains(p.AuthorId) && p.IsDeleted == false)
+   {
+      AddIncludes(p => p.Author);
+      AddIncludes(p => p.Comments);
+      AddIncludes(p => p.Reposts);
+      AddIncludes(p=>p.MediaAssets);
+      AddIncludes(p=>p.PostLikes);
+      AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+         .ThenInclude(op => op.Author));
+      AddThenIncludes(q => q.Include(p => p.OriginalPost!)
+         .ThenInclude(op => op.MediaAssets));
+      ApplyTake(size*3+skip); // over take 3shan hn3ml filter in the handler mem
+   }
 }

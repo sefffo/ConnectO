@@ -11,26 +11,19 @@ namespace Social_Media_Chatting_APP_Service.Specification.Posts;
 /// </summary>
 public class FeedPostSpecification : BaseSpecification<Post>
 {
-    public FeedPostSpecification(
-        List<string> authorIds,   // current user id + all accepted friend ids
-        DateTime? cursor,
-        int size)
-        : base(p =>
-            authorIds.Contains(p.AuthorId) &&
-            p.IsDeleted == false &&
-            (cursor == null || p.CreatedAt < cursor))
+    public FeedPostSpecification(List<string> authorIds, DateTime? cursor, int size) : base(p =>
+        authorIds.Contains(p.AuthorId) && p.IsDeleted == false && ( cursor == null|| p.CreatedAt < cursor))
     {
         AddIncludes(p => p.Author);
         AddIncludes(p => p.Comments);
         AddIncludes(p => p.Reposts);
-        AddIncludes(p => p.MediaAssets);
-        AddIncludes(p => p.PostLikes);
+        AddIncludes(p=>p.MediaAssets);
+        AddIncludes(p=>p.PostLikes);
         AddThenIncludes(q => q.Include(p => p.OriginalPost!)
             .ThenInclude(op => op.Author));
         AddThenIncludes(q => q.Include(p => p.OriginalPost!)
             .ThenInclude(op => op.MediaAssets));
-
         ApplyOrderByDescending(p => p.CreatedAt);
-        ApplyTake(size + 1);
+        ApplyTake(size+1);
     }
 }

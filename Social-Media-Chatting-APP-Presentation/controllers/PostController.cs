@@ -23,7 +23,7 @@ public class PostController(ISender sender) : ApiBaseController
     [Authorize]
     public async Task<ActionResult<Result<PostDto>>> Post([FromBody] CreatePostDto createPostDto)
     {
-        var user   = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new CreatePostCommand(user, createPostDto));
         return HandleResult(result);
     }
@@ -34,7 +34,7 @@ public class PostController(ISender sender) : ApiBaseController
     [Authorize]
     public async Task<ActionResult<Result<PostDto>>> Post([FromRoute] Guid postId)
     {
-        var user   = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new SoftDeletePostCommand(user, postId));
         return HandleResult(result);
     }
@@ -45,7 +45,7 @@ public class PostController(ISender sender) : ApiBaseController
     [Authorize]
     public async Task<ActionResult<Result<PostDto>>> GetPostById([FromRoute] Guid postId)
     {
-        var user   = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new GetPostByIdQuery(postId, user));
         return HandleResult(result);
     }
@@ -90,26 +90,25 @@ public class PostController(ISender sender) : ApiBaseController
     ///   friendsCursor  — DateTime from NextFriendsCursor of the previous response
     ///   discoverPage   — int from NextDiscoverPage of the previous response (default 0)
     /// </summary>
-    [Authorize]
-    [HttpGet("feed")]
-    public async Task<ActionResult<Result<FeedDto>>> GetFeed(
-        [FromQuery] DateTime? friendsCursor,
-        [FromQuery] int discoverPage = 0,
-        [FromQuery] int limit = 20)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var result = await sender.Send(
-            new GetFeedQuery(userId, friendsCursor, discoverPage, limit));
-        return HandleResult(result);
-    }
+    //[Authorize]
+    //[HttpGet("feed")]
+    //public async Task<ActionResult<Result<FeedDto>>> GetFeed(
+    //[FromQuery] DateTime? friendsCursor,
+    //[FromQuery] int discoverPage = 0,
+    // [FromQuery] int limit = 20)
+    //{
+    // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+    //var result = await sender.Send(
+    //new GetFeedQuery(userId, friendsCursor, discoverPage, limit));
+    //return HandleResult(result);
+    //}
 
     // ─── REPOST ───────────────────────────────────────────────────────────────
-
     [HttpPost("repost")]
     [Authorize]
     public async Task<ActionResult<Result<PostDto>>> CreateRepost([FromBody] CreateRepostDto createRepostDto)
     {
-        var user   = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new CreateRepostCommand(user, createRepostDto));
         return HandleResult(result);
     }
