@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Specifications;
 
@@ -8,17 +8,6 @@ namespace Social_Media_Chatting_APP_Domain.Interfaces
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
 
-
-        //Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TEntity, Tkey> specifications);
-
-        //to get it with the specifications and the specifications will be used to filter the data and
-        //return only the data that we need and also to include the related data if we need it and also to order the data
-        //if we need it and also to paginate the data if we need it
-        //Task<int> CountAsync(ISpecifications<TEntity, Tkey> specifications);
-
-        //Task<TEntity> GetByIdAsync(ISpecifications<TEntity, Tkey> specifications);
-
-
         Task<TEntity> GetByIdAsync(T id);
 
         Task AddAsync(TEntity entity);
@@ -26,17 +15,19 @@ namespace Social_Media_Chatting_APP_Domain.Interfaces
         void Remove(TEntity entity);
 
         void Update(TEntity entity);
-        
+
+        // ── Tracked reads (use when mutation follows) ────────────────────────
         Task<TEntity?> FindAsync(ISpecification<TEntity> specifications);
-        
         Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate);
-        
         Task<IEnumerable<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> predicate);
-        
         Task<IEnumerable<TEntity>> FindAllAsync(ISpecification<TEntity> specifications);
-        Task<int> CountAsync(ISpecification<TEntity> specifications); //to get the count of the data that we need as it's gonna be used to paginate the data
         Task<TEntity?> GetByIdAsync(ISpecification<TEntity> specifications);
-        
-        
+        Task<int> CountAsync(ISpecification<TEntity> specifications);
+
+        // ── No-tracking reads (use for pure queries — no mutation after fetch) ─
+        Task<TEntity?> FindNoTrackingAsync(ISpecification<TEntity> specifications);
+        Task<TEntity?> FindNoTrackingAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<IEnumerable<TEntity>> FindAllNoTrackingAsync(ISpecification<TEntity> specifications);
+        Task<IEnumerable<TEntity>> FindAllNoTrackingAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

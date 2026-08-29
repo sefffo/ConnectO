@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
@@ -13,40 +13,33 @@ public class GetCommentRepliesQueryHandler(
     IMapper mapper
 ) : IRequestHandler<GetCommentRepliesQuery, Result<CommentFeedDto>>
 {
-    public async Task<Result<CommentFeedDto>> Handle(GetCommentRepliesQuery request,
-        CancellationToken cancellationToken)
+    public async Task<Result<CommentFeedDto>> Handle(GetCommentRepliesQuery request, CancellationToken cancellationToken)
     {
-        var commentRepo = unitofwork.GetRepository<Comment,Guid>();
-        var spec = new CommentRepliesSpecification(request.CommentId, request.Cursor, request.Limit);
-        
-        // check el parent comment asln mawgood 
-        var parentComment = await commentRepo.GetByIdAsync(request.CommentId);
-        if (parentComment == null || parentComment.IsDeleted)
-            return Error.NotFound("Parent-Comment.NotFound", "Comment not found");
-        var replies = await commentRepo.FindAllAsync(spec);
+        var commentRepo = unitofwork.GetRepository<Comment, Guid>();
 
-        // el pagination b'a 
-        
-        var hasNextPage = replies.Count()>request.Limit;
+        // Existence check only — no mutation, skip tracker
+        var parentComment = await commentRepo.FindNoTrackingAsync(c => c.Id == request.CommentId);
+        if (parentComment is null || parentComment.IsDeleted)
+            return Error.NotFound("Parent-Comment.NotFound", "Comment not found");
+
+        // Pure read list — skip tracker
+        var spec    = new CommentRepliesSpecification(request.CommentId, request.Cursor, request.Limit);
+        var replies = await commentRepo.FindAllNoTrackingAsync(spec);
+
+        var hasNextPage = replies.Count() > request.Limit;
         if (hasNextPage)
-        {
-            //yrg3 el limit
-            replies =  replies.Take(request.Limit).ToList();
-        }
-        // lw 3ndha next page yb'a akher comment hwa el next Cursor lw la' yb'a DateTime(null)
-        var nextCursor = hasNextPage ? replies.Last().CreatedAt : (DateTime?)null;
-        
+            replies = replies.Take(request.Limit).ToList();
+
+        var nextCursor     = hasNextPage ? replies.Last().CreatedAt : (DateTime?)null;
         var mappedComments = mapper.Map<List<CommentDto>>(replies);
-        
+
         foreach (var (commentDto, comment) in mappedComments.Zip(replies))
         {
-            commentDto.IsLikedByMe = comment.CommentLikes.Any(l => l.UserId == request.UserId.ToString());
-            commentDto.LikeCount = comment.CommentLikes.Count;
+            commentDto.IsLikedByMe  = comment.CommentLikes.Any(l => l.UserId == request.UserId.ToString());
+            commentDto.LikeCount    = comment.CommentLikes.Count;
             commentDto.RepliesCount = comment.Replies.Count(r => !r.IsDeleted);
         }
-        
+
         return Result<CommentFeedDto>.Ok(new CommentFeedDto(mappedComments, nextCursor, hasNextPage));
-
-
     }
 }

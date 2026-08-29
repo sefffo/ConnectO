@@ -12,7 +12,9 @@ public class ToggleLikePostCommandHandler(
     public async Task<Result<bool>> Handle(ToggleLikePostCommand request, CancellationToken cancellationToken)
     {
         var postRepo = unitOfWork.GetRepository<Post, Guid>();
-        var post = await postRepo.FindAsync(p => p.Id == request.PostId && !p.IsDeleted);
+
+        // Existence check only — we never mutate the Post itself, only PostLike
+        var post = await postRepo.FindNoTrackingAsync(p => p.Id == request.PostId && !p.IsDeleted);
         if (post is null)
             return Error.NotFound("Post.NotFound", "Post not found");
 
@@ -28,8 +30,8 @@ public class ToggleLikePostCommandHandler(
 
         await unitOfWork.AddAsync(new PostLike
         {
-            PostId = request.PostId,
-            UserId = request.UserId,
+            PostId  = request.PostId,
+            UserId  = request.UserId,
             LikedAt = DateTime.UtcNow
         });
 
