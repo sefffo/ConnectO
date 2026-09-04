@@ -21,7 +21,7 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Queries.GetNo
 
             var repo = unitOfWork.GetRepository<Notification, Guid>();
 
-            var allForUser = (await repo.FindAllAsync(n => n.RecipientId == userId)).ToList();
+            var allForUser = (await repo.FindAllAsync(n => n.RecipientId == userId.ToString())).ToList();
 
             var filtered = allForUser.AsEnumerable();
 
@@ -52,7 +52,7 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Queries.GetNo
                 actors.TryGetValue(n.ActorId.ToString(), out var actor);
                 return new NotificationDto(
                     n.Id,
-                    n.ActorId,
+                    Guid.Parse(n.ActorId),
                     actor?.UserName ?? "Unknown",
                     actor?.ProfilePicture,
                     n.Type,

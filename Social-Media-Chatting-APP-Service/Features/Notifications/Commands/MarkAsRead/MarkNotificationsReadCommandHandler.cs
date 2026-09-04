@@ -23,14 +23,14 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Commands.Mark
             if (request.NotificationIds is { Count: > 0 })
             {
                 notifications = await repo.FindAllAsync(
-                    n => n.RecipientId == userId
+                    n => n.RecipientId == userId.ToString()
                          && !n.IsRead
                          && request.NotificationIds.Contains(n.Id));
             }
             else
             {
                 notifications = await repo.FindAllAsync(
-                    n => n.RecipientId == userId && !n.IsRead);
+                    n => n.RecipientId == userId.ToString() && !n.IsRead);
             }
 
             foreach (var n in notifications)

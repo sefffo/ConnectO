@@ -4,10 +4,10 @@ namespace Social_Media_Chatting_APP_Domain.Entities
 {
     public class Notification : BaseEntity<Guid>
     {
-        public Guid RecipientId { get; set; }
+        public string RecipientId { get; set; }
         public AppUser Recipient { get; set; } = null!;
 
-        public Guid ActorId { get; set; }
+        public string ActorId { get; set; }
         public AppUser Actor { get; set; } = null!;
 
         public NotificationType Type { get; set; }
