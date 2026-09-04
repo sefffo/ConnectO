@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Social_Media_Chatting_APP_Persistence.DbContext;
 using Social_Media_Chatting_APP_Persistence.DI;
+using Social_Media_Chatting_APP_Persistence.Seeding;
 using Social_Media_Chatting_APP_Presentation.Hubs;
 using Social_Media_Chatting_APP_Presentation.Infrastructure.SignalR;
 using Social_Media_Chatting_APP_Service.Common;
@@ -37,10 +38,6 @@ builder.Services.AddCors(options => options.AddPolicy("TestWebPolicy", policy =>
 
 builder.Services.AddDbContext<Social_Media_Chatting_APP_DbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-#endregion
-
-#region Data Intializer
 
 #endregion
 
@@ -103,6 +100,12 @@ var app = builder.Build();
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 //await app.MigrateDatabaseAsync();
+
+#region Data Initializer
+
+await DataSeeder.SeedUsersAsync(app.Services);
+
+#endregion
 
 // Enabled in all environments temporarily for testing
 app.MapOpenApi();
