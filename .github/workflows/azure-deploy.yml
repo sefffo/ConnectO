@@ -10,6 +10,7 @@ env:
   DOTNET_VERSION: '10.0.x'
   SOLUTION_PATH: 'Social_Media_Chatting_APP.slnx'
   WEB_PROJECT_PATH: 'Social-Media-Chatting-APP-Web/Social-Media-Chatting-APP-Web.csproj'
+  PERSISTENCE_PROJECT_PATH: 'Social-Media-Chatting-APP-Persistence/Social-Media-Chatting-APP-Persistence.csproj'
   TESTS_PROJECT_PATH: 'Social-Media-Chatting-APP-Service.Tests'
   PUBLISH_OUTPUT: './publish'
   AZURE_WEBAPP_NAME: connecto-fvfuauetc7buamaz
@@ -66,10 +67,10 @@ jobs:
           path: ${{ env.PUBLISH_OUTPUT }}
 
   # ─────────────────────────────────────────────
-  # JOB 2: Deploy (only on push to main)
+  # JOB 2: Migrate & Deploy (only on push to main)
   # ─────────────────────────────────────────────
   deploy:
-    name: Deploy to Azure App Service
+    name: Migrate & Deploy to Azure App Service
     runs-on: ubuntu-latest
     needs: build-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -79,6 +80,31 @@ jobs:
       url: https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Install dotnet-ef tool
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Run EF Core migrations
+        run: |
+          dotnet ef database update \
+            --project ${{ env.PERSISTENCE_PROJECT_PATH }} \
+            --startup-project ${{ env.WEB_PROJECT_PATH }} \
+            --context Social_Media_Chatting_APP_DbContext \
+            --no-build
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.PRODUCTION_CONNECTION_STRING }}
+          ASPNETCORE_ENVIRONMENT: Production
+
       - name: Download publish artifact
         uses: actions/download-artifact@v4
         with:
