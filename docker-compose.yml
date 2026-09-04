@@ -1,73 +1,121 @@
+# ================================================================
+# ConnectO — local development stack
+# The API connects to a local PostgreSQL + Redis.
+# For production the API is deployed on Azure App Service and uses
+# Neon PostgreSQL + a managed Redis — this file is for local dev only.
+# ================================================================
+
 services:
 
+  # ── ConnectO API ────────────────────────────────────────────────
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: chatapp-api
+    image: connecto-api:local
+    container_name: connecto-api
     ports:
       - "8080:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=ChatAppDb;Username=postgres;Password=${DB_PASSWORD}
-      - ConnectionStrings__Redis=redis:6379
-      - Jwt__Key=${JWT_KEY}
-      - Jwt__Issuer=ChatApp
-      - Jwt__Audience=ChatAppUsers
-    volumes:
-      - uploads_data:/app/wwwroot/uploads
+      ASPNETCORE_ENVIRONMENT: Development
+
+      # Database — points to the local postgres service below
+      ConnectionStrings__DefaultConnection: >-
+        Host=db;Port=5432;Database=ConnectoDB;Username=postgres;
+        Password=${DB_PASSWORD};SSL Mode=Disable
+      ConnectionStrings__Redis: redis:6379
+
+      # JWT
+      JwtOptions__SecretKey: ${JWT_SECRET_KEY}
+      JwtOptions__Issuer: ConnectO
+      JwtOptions__Audience: ConnectO
+      JwtOptions__AccessTokenExpiryMinutes: 15
+      JwtOptions__RefreshTokenExpiryDays: 7
+
+      # Google OAuth
+      Authentication__Google__ClientId: ${GOOGLE_CLIENT_ID}
+      Authentication__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET}
+
+      # Cloudinary
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET}
+
+      # Email / SMTP
+      EmailSettings__Host: smtp.gmail.com
+      EmailSettings__Port: 587
+      EmailSettings__Email: ${SMTP_EMAIL}
+      EmailSettings__Password: ${SMTP_PASSWORD}
+      EmailSettings__DisplayName: ConnectO
+
+      # Web Push (VAPID)
+      VapidSettings__PublicKey: ${VAPID_PUBLIC_KEY}
+      VapidSettings__PrivateKey: ${VAPID_PRIVATE_KEY}
+      VapidSettings__Subject: ${VAPID_SUBJECT}
+
+      # Firebase Cloud Messaging (FCM)
+      Firebase__ProjectId: ${FIREBASE_PROJECT_ID}
+      Firebase__ServiceAccountJson: ${FIREBASE_SERVICE_ACCOUNT_JSON}
+
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
-      - chatapp-network
+      - connecto-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
+  # ── PostgreSQL ───────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
-    container_name: chatapp-db
+    container_name: connecto-db
     environment:
-      - POSTGRES_DB=ChatAppDb
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      POSTGRES_DB: ConnectoDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - chatapp-network
+      - connecto-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ChatAppDb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ConnectoDB"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
     restart: unless-stopped
 
+  # ── Redis ────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: chatapp-redis
+    container_name: connecto-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - chatapp-network
+      - connecto-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     restart: unless-stopped
 
 volumes:
-  postgres_data:   # PostgreSQL database files
-  redis_data:      # Redis AOF persistence
-  uploads_data:    # User uploaded files (wwwroot/uploads)
+  postgres_data:
+  redis_data:
 
 networks:
-  chatapp-network:
+  connecto-network:
     driver: bridge
