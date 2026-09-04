@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Social_Media_Chatting_APP_Domain.Entities;
 
@@ -9,13 +9,9 @@ namespace Social_Media_Chatting_APP_Persistence.DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Additional model configurations can be added here
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(Social_Media_Chatting_APP_DbContext).Assembly);
-
-          
-
         }
-        
+
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
@@ -25,10 +21,12 @@ namespace Social_Media_Chatting_APP_Persistence.DbContext
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
         public DbSet<MessageReadStatus> MessageReadStatus { get; set; }
         public DbSet<MediaAsset> MediaAssets { get; set; }
-        // add the Social Media Core Feats Tables
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<PostLike> PostLikes { get; set; }
+
+        // Push Notifications
+        public DbSet<PushSubscription> PushSubscriptions { get; set; }
     }
 }
