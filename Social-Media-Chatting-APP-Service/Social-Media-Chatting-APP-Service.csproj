@@ -12,6 +12,7 @@
     <PackageReference Include="CloudinaryDotNet" Version="1.29.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.76.0" />
     <PackageReference Include="Lib.Net.Http.WebPush" Version="3.3.1" />
     <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="MediatR" Version="12.5.0" />
