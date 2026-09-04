@@ -91,6 +91,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore ${{ env.SOLUTION_PATH }}
 
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
       - name: Install dotnet-ef tool
         run: dotnet tool install --global dotnet-ef
 
@@ -99,8 +102,7 @@ jobs:
           dotnet ef database update \
             --project ${{ env.PERSISTENCE_PROJECT_PATH }} \
             --startup-project ${{ env.WEB_PROJECT_PATH }} \
-            --context Social_Media_Chatting_APP_DbContext \
-            --no-build
+            --context Social_Media_Chatting_APP_DbContext
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.PRODUCTION_CONNECTION_STRING }}
           ASPNETCORE_ENVIRONMENT: Production
