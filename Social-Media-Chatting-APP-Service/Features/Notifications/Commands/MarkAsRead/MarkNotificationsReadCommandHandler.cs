@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
@@ -8,9 +7,9 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Commands.Mark
 {
     public class MarkNotificationsReadCommandHandler(
         IUnitOfWork unitOfWork
-    ) : IRequestHandler<MarkNotificationsReadCommand, Result>
+    ) : IRequestHandler<MarkNotificationsReadCommand, Result<bool>>
     {
-        public async Task<Result> Handle(
+        public async Task<Result<bool>> Handle(
             MarkNotificationsReadCommand request,
             CancellationToken cancellationToken)
         {
@@ -19,19 +18,29 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Commands.Mark
 
             var repo = unitOfWork.GetRepository<Notification, Guid>();
 
-            var query = repo.Query()
-                .Where(n => n.RecipientId == userId && !n.IsRead);
+            IEnumerable<Notification> notifications;
 
             if (request.NotificationIds is { Count: > 0 })
-                query = query.Where(n => request.NotificationIds.Contains(n.Id));
-
-            var notifications = await query.ToListAsync(cancellationToken);
+            {
+                notifications = await repo.FindAllAsync(
+                    n => n.RecipientId == userId
+                         && !n.IsRead
+                         && request.NotificationIds.Contains(n.Id));
+            }
+            else
+            {
+                notifications = await repo.FindAllAsync(
+                    n => n.RecipientId == userId && !n.IsRead);
+            }
 
             foreach (var n in notifications)
+            {
                 n.IsRead = true;
+                repo.Update(n);
+            }
 
             await unitOfWork.SaveChangesAsync();
-            return Result.Ok();
+            return Result<bool>.Ok(true);
         }
     }
 }

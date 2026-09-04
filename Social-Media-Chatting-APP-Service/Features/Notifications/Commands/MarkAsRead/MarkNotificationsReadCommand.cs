@@ -5,7 +5,7 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Commands.Mark
 {
     public record MarkNotificationsReadCommand(
         string UserId,
-        /// <summary>If null, marks ALL unread notifications as read.</summary>
+        /// <summary>If null or empty, marks ALL unread notifications as read.</summary>
         IReadOnlyList<Guid>? NotificationIds = null
-    ) : IRequest<Result>;
+    ) : IRequest<Result<bool>>;
 }

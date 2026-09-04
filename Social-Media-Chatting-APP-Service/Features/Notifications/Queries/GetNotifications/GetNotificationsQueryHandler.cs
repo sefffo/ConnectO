@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_SharedLibrary.Dtos;
@@ -20,40 +19,55 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Queries.GetNo
 
             var repo = unitOfWork.GetRepository<Notification, Guid>();
 
-            var query = repo.Query()
-                .Include(n => n.Actor)
-                .Where(n => n.RecipientId == userId);
+            // Fetch page + 1 to determine hasMore
+            var allForUser = (await repo.FindAllAsync(n => n.RecipientId == userId)).ToList();
+
+            var filtered = allForUser.AsEnumerable();
 
             if (request.Before.HasValue)
-                query = query.Where(n => n.CreatedAt < request.Before.Value);
+                filtered = filtered.Where(n => n.CreatedAt < request.Before.Value);
 
-            var items = await query
+            var ordered = filtered
                 .OrderByDescending(n => n.CreatedAt)
-                .Take(request.PageSize + 1)
-                .ToListAsync(cancellationToken);
+                .ToList();
 
-            var hasMore = items.Count > request.PageSize;
-            if (hasMore) items.RemoveAt(items.Count - 1);
+            var hasMore = ordered.Count > request.PageSize;
+            var page = ordered.Take(request.PageSize).ToList();
 
-            var unreadCount = await repo.Query()
-                .CountAsync(n => n.RecipientId == userId && !n.IsRead, cancellationToken);
+            // Unread count across ALL user notifications (not just this page)
+            var unreadCount = allForUser.Count(n => !n.IsRead);
 
-            var dtos = items.Select(n => new NotificationDto(
-                n.Id,
-                n.ActorId,
-                n.Actor.UserName!,
-                n.Actor.AvatarUrl,
-                n.Type,
-                n.ReferenceId,
-                n.IsRead,
-                n.CreatedAt
-            )).ToList();
+            // Load Actor info for each notification
+            var actorIds = page.Select(n => n.ActorId).Distinct().ToList();
+            var userRepo = unitOfWork.GetRepository<AppUser, string>();
+            var actors = new Dictionary<Guid, AppUser>();
+            foreach (var actorId in actorIds)
+            {
+                var actor = await repo.FindAsync(n => n.ActorId == actorId);
+                if (actor is not null)
+                    actors.TryAdd(actorId, actor.Actor);
+            }
+
+            var dtos = page.Select(n =>
+            {
+                actors.TryGetValue(n.ActorId, out var actor);
+                return new NotificationDto(
+                    n.Id,
+                    n.ActorId,
+                    actor?.UserName ?? "Unknown",
+                    actor?.AvatarUrl,
+                    n.Type,
+                    n.ReferenceId,
+                    n.IsRead,
+                    n.CreatedAt
+                );
+            }).ToList();
 
             return Result<NotificationFeedDto>.Ok(new NotificationFeedDto(
                 dtos,
                 unreadCount,
                 hasMore,
-                hasMore ? items.Last().CreatedAt : null
+                hasMore ? page.Last().CreatedAt : null
             ));
         }
     }

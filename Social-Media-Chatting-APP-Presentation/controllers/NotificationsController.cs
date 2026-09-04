@@ -15,8 +15,7 @@ namespace Social_Media_Chatting_APP_Presentation.Controllers;
 public class NotificationsController(ISender sender) : ApiBaseController
 {
     /// <summary>
-    /// Get paginated notification feed for the current user.
-    /// Pass 'before' cursor from previous response for next page.
+    /// Get paginated notification feed. Pass 'before' cursor from previous response for next page.
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<Result<NotificationFeedDto>>> GetNotifications(
@@ -29,10 +28,10 @@ public class NotificationsController(ISender sender) : ApiBaseController
     }
 
     /// <summary>
-    /// Mark specific notifications as read. If body is empty, marks ALL unread as read.
+    /// Mark notifications as read. Pass specific IDs in body, or empty body to mark ALL unread as read.
     /// </summary>
     [HttpPut("read")]
-    public async Task<IActionResult> MarkAsRead([FromBody] List<Guid>? notificationIds)
+    public async Task<ActionResult<Result<bool>>> MarkAsRead([FromBody] List<Guid>? notificationIds)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await sender.Send(new MarkNotificationsReadCommand(userId!, notificationIds));
