@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.HttpSys;
@@ -16,7 +16,8 @@ namespace Social_Media_Chatting_APP_Service.Features.Messages.Commands;
 public class SendMessageCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IRealtimeNotifier realtimeNotifier, // used for teh events 
+    IRealtimeNotifier realtimeNotifier,
+    IPushNotificationService pushNotificationService,
     UserManager<AppUser> userManager
 ) : IRequestHandler<SendMessageCommand, Result<MessageDto>>
 {
@@ -25,7 +26,6 @@ public class SendMessageCommandHandler(
         var convoRepo = unitOfWork.GetRepository<Conversation, Guid>();
         var messageRepo = unitOfWork.GetRepository<Message, Guid>();
         var friendshipRepo = unitOfWork.GetRepository<Social_Media_Chatting_APP_Domain.Entities.Friendship, Guid>();
-
 
         var senderUser = await userManager.FindByIdAsync(request.senderId);
 
@@ -50,7 +50,6 @@ public class SendMessageCommandHandler(
             if (friendshipExists == null || friendshipExists.Status != FriendshipStatus.Accepted)
                 return Error.Forbidden("Message.NotFriends", "You are not friends with this user");
         }
-
 
         if (request.contentType == MessageContentType.Text &&
             string.IsNullOrWhiteSpace(request.textContent))
@@ -89,12 +88,11 @@ public class SendMessageCommandHandler(
             convoRepo.Update(conversation);
             await messageRepo.AddAsync(selfMessage);
             await unitOfWork.SaveChangesAsync();
+
             if (request.mediaPublicId is not null)
             {
                 var mediaAssetRepo = unitOfWork.GetRepository<MediaAsset, Guid>();
-                var mediaAsset =
-                    await mediaAssetRepo.FindAsync(m => m.PublicId == request.mediaPublicId && !m.IsDeleted);
-
+                var mediaAsset = await mediaAssetRepo.FindAsync(m => m.PublicId == request.mediaPublicId && !m.IsDeleted);
                 if (mediaAsset is not null)
                 {
                     mediaAsset.MessageId = selfMessage.Id;
@@ -104,7 +102,6 @@ public class SendMessageCommandHandler(
 
             var mappedSelfMessage = mapper.Map<MessageDto>(selfMessage);
             await realtimeNotifier.BroadcastNewMessage(request.ConversationId, mappedSelfMessage);
-
             return Result<MessageDto>.Ok(mappedSelfMessage);
         }
 
@@ -134,7 +131,6 @@ public class SendMessageCommandHandler(
         {
             var mediaAssetRepo = unitOfWork.GetRepository<MediaAsset, Guid>();
             var mediaAsset = await mediaAssetRepo.FindAsync(m => m.PublicId == request.mediaPublicId && !m.IsDeleted);
-
             if (mediaAsset is not null)
             {
                 mediaAsset.MessageId = message.Id;
@@ -143,7 +139,34 @@ public class SendMessageCommandHandler(
         }
 
         var mappedMessage = mapper.Map<MessageDto>(message);
+
+        // Online path — SignalR delivers in real time
         await realtimeNotifier.BroadcastNewMessage(request.ConversationId, mappedMessage);
+
+        // Offline path — Web Push fires for every participant who is NOT the sender
+        // AppUser.IsOnline tracks connection state (updated by ChatHub on connect/disconnect)
+        var offlineParticipants = conversation.Participants
+            .Where(p => p.UserId != request.senderId)
+            .ToList();
+
+        foreach (var participant in offlineParticipants)
+        {
+            var participantUser = await userManager.FindByIdAsync(participant.UserId);
+            if (participantUser is not null && !participantUser.IsOnline)
+            {
+                var notificationBody = request.contentType == MessageContentType.Text
+                    ? request.textContent ?? string.Empty
+                    : $"Sent a {request.contentType.ToString().ToLower()}"; // e.g. "Sent an image"
+
+                // Fire-and-forget: push delivery should never block the API response
+                _ = Task.Run(() => pushNotificationService.SendAsync(
+                    participant.UserId,
+                    senderUser?.DisplayName ?? "New Message",
+                    notificationBody,
+                    url: $"/chat/{request.ConversationId}"
+                ), cancellationToken);
+            }
+        }
 
         return Result<MessageDto>.Ok(mappedMessage);
     }

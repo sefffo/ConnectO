@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
@@ -11,21 +12,31 @@ namespace Social_Media_Chatting_APP_Presentation.Hubs;
 [Authorize]
 public class ChatHub(
     IUnitOfWork unitOfWork,
-    IRealtimeNotifier realtimeNotifier
+    IRealtimeNotifier realtimeNotifier,
+    UserManager<AppUser> userManager
 ) : Hub
 {
     public override async Task OnConnectedAsync()
     {
-        var user = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (user is null)
+        if (userId is null)
         {
             Context.Abort();
             return;
         }
 
+        // Mark user as online so push notifications are skipped while app is open
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is not null)
+        {
+            user.IsOnline = true;
+            user.LastSeen = DateTime.UtcNow;
+            await userManager.UpdateAsync(user);
+        }
+
         var conversationRepo = unitOfWork.GetRepository<Conversation, Guid>();
-        var conversations = await conversationRepo.FindAllAsync(new UserConversationHubSpecification(Guid.Parse(user)));
+        var conversations = await conversationRepo.FindAllAsync(new UserConversationHubSpecification(Guid.Parse(userId)));
 
         foreach (var id in conversations.Select(c => c.Id))
             await realtimeNotifier.AddToConversationGroup(id, Context.ConnectionId);
@@ -35,15 +46,29 @@ public class ChatHub(
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId is not null)
+        {
+            // Mark user as offline so future messages trigger push notifications
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is not null)
+            {
+                user.IsOnline = false;
+                user.LastSeen = DateTime.UtcNow;
+                await userManager.UpdateAsync(user);
+            }
+        }
+
         await base.OnDisconnectedAsync(exception);
     }
 
     private async Task<bool> CheckIfUserIsParticipantOfConversation(Guid conversationId)
     {
-        var user = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var conversationRepo = unitOfWork.GetRepository<Conversation, Guid>();
         var convo = await conversationRepo.FindAsync(
-            new ConversationMembershipSpecification(conversationId, user));
+            new ConversationMembershipSpecification(conversationId, userId));
         return convo is not null;
     }
 
@@ -80,11 +105,11 @@ public class ChatHub(
     /// </summary>
     public async Task SendTypingIndicator(Guid conversationId, bool isTyping)
     {
-        var user = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var isParticipant = await CheckIfUserIsParticipantOfConversation(conversationId);
 
         if (isParticipant)
             await Clients.OthersInGroup(conversationId.ToString())
-                .SendAsync("ReceiveTypingIndicator", user, conversationId, isTyping);
+                .SendAsync("ReceiveTypingIndicator", userId, conversationId, isTyping);
     }
 }
