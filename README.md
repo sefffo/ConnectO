@@ -6,11 +6,14 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-13.0-239120?logo=c-sharp&logoColor=white)](https://learn.microsoft.com/en-us/dotnet/csharp/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC2927?logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/en-us/sql-server)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)](https://neon.tech/)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](https://redis.io/)
 [![SignalR](https://img.shields.io/badge/SignalR-Real--Time-0078D4?logo=microsoftazure&logoColor=white)](https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-Media-3448C5?logo=cloudinary&logoColor=white)](https://cloudinary.com/)
-[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-saif31%2Fconnecto--api-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/)
+[![Azure](https://img.shields.io/badge/Azure-Live%20on%20Production-0078D4?logo=microsoftazure&logoColor=white)](https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net/scalar/#description/introduction)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-saif31%2Fconnecto--api-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/)
+
+> 🚀 **Live on Production** → [connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net](https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net/scalar/#description/introduction)
 
 </div>
 
@@ -19,36 +22,68 @@
 ## 📑 Table of Contents
 
 1. [Overview](#-overview)
-2. [Architecture](#-architecture--clean-architecture--cqrs)
-3. [Design Patterns](#-design-patterns-used)
-4. [Tech Stack](#-tech-stack)
-5. [Features](#-features)
-6. [Project Structure](#-project-structure)
-7. [Authentication & Authorization](#-authentication--authorization)
-8. [Email Service](#-email-service)
-9. [Real-Time (SignalR)](#-real-time-signalr)
-10. [Caching Strategy](#-caching-strategy)
-11. [Media Uploads](#-media-uploads-cloudinary)
-12. [Running Locally](#-running-locally)
-13. [Docker Deployment](#-docker-deployment)
-14. [API Reference](#-api-reference)
-15. [Roadmap](#-roadmap)
-16. [What I Learned](#-what-i-learned)
+2. [Live Production](#-live-production)
+3. [Architecture](#-architecture--clean-architecture--cqrs)
+4. [Design Patterns](#-design-patterns-used)
+5. [Tech Stack](#-tech-stack)
+6. [Features](#-features)
+7. [Database Schema](#-database-schema)
+8. [Project Structure](#-project-structure)
+9. [Authentication & Authorization](#-authentication--authorization)
+10. [Email Service](#-email-service)
+11. [Real-Time (SignalR)](#-real-time-signalr)
+12. [SignalR Testing Tool](#-signalr-testing-tool)
+13. [Caching Strategy](#-caching-strategy)
+14. [Media Uploads](#-media-uploads-cloudinary)
+15. [Test Accounts](#-test-accounts)
+16. [API Reference](#-api-reference)
+17. [Running Locally](#-running-locally)
+18. [Docker Deployment](#-docker-deployment)
+19. [Roadmap](#-roadmap)
+20. [What I Learned](#-what-i-learned)
 
 ---
 
 ## 📖 Overview
 
-ConnectO is a full-featured social media & real-time chatting backend — built from scratch with production concerns in mind, not a tutorial clone. Every architectural decision was deliberate: from the CQRS command/query split, to user-scoped Redis caching, to OTP email verification, to SignalR presence tracking.
+ConnectO is a full-featured social media & real-time chatting backend — built from scratch with production concerns in mind, not a tutorial clone. Every architectural decision was deliberate: from the CQRS command/query split, to user-scoped Redis caching, to OTP email verification, to SignalR presence tracking and real-time messaging.
 
 - **7 independent projects** organized by Clean Architecture rings (Domain → Service → Persistence → Presentation → Web)
 - **CQRS + MediatR** — every operation is an isolated Command or Query with its own handler and FluentValidation validator
 - **JWT + refresh tokens** with rotation & revocation
+- **Google OAuth** — seamless sign-in with Google accounts
+- **Two-Factor Authentication (2FA)** — TOTP-based 2FA enable/disable
 - **OTP email verification** — Redis-backed with 10-minute auto-expiry
-- **SignalR** for real-time messaging and online presence
-- **Cloudinary** for profile picture uploads with automatic old-image cleanup
+- **SignalR** for real-time messaging, online presence, notifications, and read receipts
+- **Push Notifications** — Web Push (VAPID) + Firebase Cloud Messaging (FCM) for mobile
+- **Cloudinary** for all media uploads with automatic old-asset cleanup
 - **User-scoped Redis caching** on search endpoints (30s TTL, per-user isolation)
 - **Containerized** with a multi-stage Dockerfile + `docker-compose.yml`
+- **Deployed on Azure App Service** (West Europe) backed by Neon PostgreSQL
+
+---
+
+## 🚀 Live Production
+
+The API is **live and publicly accessible**:
+
+| Resource | URL |
+|---|---|
+| **Scalar API Docs** | [connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net/scalar](https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net/scalar/#description/introduction) |
+| **Base URL** | `https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net` |
+| **Database** | Neon PostgreSQL (production branch) |
+| **Region** | Azure West Europe |
+
+### 🧪 Test Accounts
+
+Two seeded accounts are available to explore the API immediately:
+
+| Account | Email | Password |
+|---|---|---|
+| **ProfileA** | `profilea@connecto.test` | `Test@1234!` |
+| **ProfileB** | `profileb@connecto.test` | `Test@1234!` |
+
+Both accounts have `EmailConfirmed = true` — ready to log in with no extra steps.
 
 ---
 
@@ -57,10 +92,10 @@ ConnectO is a full-featured social media & real-time chatting backend — built 
 ```
 ┌──────────────────────────────────────────────────────────┐
 │            Social-Media-Chatting-APP-Web (Host)          │ ← Program.cs, middleware, DI wiring
-│  CORS · JWT · Swagger · Global exception handler · SignalR│
+│  CORS · JWT · Scalar · Global exception handler · SignalR│
 ├──────────────────────────────────────────────────────────┤
 │         Social-Media-Chatting-APP-Presentation           │ ← HTTP boundary, SignalR Hubs
-│  Auth · UserProfile · Search · (Chat coming soon)        │
+│  Auth · UserProfile · Posts · Chat · Notifications · …   │
 ├──────────────────────────────────────────────────────────┤
 │            Social-Media-Chatting-APP-Service             │ ← Application layer (CQRS handlers)
 │  Commands · Queries · Validators · MappingProfiles        │
@@ -68,8 +103,8 @@ ConnectO is a full-featured social media & real-time chatting backend — built 
 │        Social-Media-Chatting-APP-ServiceAbstraction      │ ← Service interfaces (DI contracts)
 │  IAuthService · IUploadService · IOtpService · …         │
 ├──────────────────────────────────────────────────────────┤
-│          Social-Media-Chatting-APP-Persistence           │ ← EF Core, Migrations
-│  AppDbContext · IdentityDbContext · Repository seed      │
+│          Social-Media-Chatting-APP-Persistence           │ ← EF Core, Migrations, Seeding
+│  AppDbContext · IdentityDbContext · Repository pattern   │
 ├──────────────────────────────────────────────────────────┤
 │            Social-Media-Chatting-APP-Domain              │ ← Pure C#, no dependencies
 │  Entities · Enums                                        │
@@ -106,17 +141,20 @@ ConnectO is a full-featured social media & real-time chatting backend — built 
 | Layer | Technology |
 |---|---|
 | **Runtime** | ASP.NET Core 10 · C# 13 |
-| **Data** | Entity Framework Core 10 · SQL Server 2022 |
+| **Data** | Entity Framework Core 10 · PostgreSQL (Neon) |
 | **Identity** | ASP.NET Core Identity |
 | **Cache** | Redis 7 (StackExchange.Redis) |
 | **Real-Time** | SignalR |
+| **Push** | Web Push (VAPID) · Firebase Cloud Messaging (FCM) |
 | **Media** | Cloudinary SDK |
-| **Email** | SMTP (background queue) |
+| **Email** | SMTP (background queue · MailKit) |
 | **Messaging** | MediatR (CQRS) |
 | **Validation** | FluentValidation |
 | **Mapping** | AutoMapper |
-| **Docs** | Swashbuckle (Swagger) |
+| **Docs** | Scalar (OpenAPI 3.1) |
 | **Container** | Docker (multi-stage) + Docker Compose |
+| **Hosting** | Azure App Service (West Europe) |
+| **Database Host** | Neon PostgreSQL (serverless) |
 
 </div>
 
@@ -125,39 +163,90 @@ ConnectO is a full-featured social media & real-time chatting backend — built 
 ## ✨ Features
 
 ### 🔐 Identity & Auth
-- Register with username, display name, email, password, optional phone number
+- Register with username, display name, email, password
 - Email OTP verification — Redis-backed, 10-minute auto-expiry, zero manual cleanup
+- Resend OTP support
 - Login with JWT access token + refresh token (rotation on every refresh)
-- Revoke endpoint — logs user out on all devices instantly
+- Logout / token revocation — logs user out on all devices instantly
+- **Google OAuth** — sign in with Google (`/api/Auth/google-login`)
+- **Two-Factor Authentication (2FA)** — enable/disable TOTP-based 2FA
+- Forgot Password + Reset Password via email link
 - `[Authorize]` gates on all user-only endpoints
 
 ### 👤 User Profile
 - View own private profile (full details)
-- Update profile — display name, bio, website, location, phone, privacy settings
+- Update profile — display name, bio, privacy settings
 - Upload / replace profile picture via Cloudinary (old image auto-deleted)
 - View public profile of any user by ID
 - Privacy controls — `ShowOnlineStatus`, `ShowLastSeen`, `AllowMessageFromStrangers`
+- Delete profile picture
 
-### 🔍 Search
-- Search users by username or display name
-- Current user automatically excluded from results
+### 🔍 User Search
+- Search users by username or display name (`/api/UserSearch?q=`)
 - **User-scoped Redis caching** — `user-search:{userId}:{query}` key, 30s TTL
-- Results capped at 20 per query
+
+### 🤝 Friendship System
+- Send / respond to friend requests (accept / decline)
+- Unfriend users
+- Block / unblock users
+- View friends list, blocked users, incoming & outgoing friend requests
+
+### 📝 Posts & Feed
+- Create posts (text, media, repost, quote-repost)
+- Edit and delete posts
+- Get post by ID
+- Paginated personal feed (cursor-based)
+- Get posts by author (cursor-based)
+- Repost support
+
+### 💬 Comments
+- Add comments on posts (with optional media attachment)
+- Edit / delete comments
+- Nested replies on comments (cursor-paginated)
+- Get all comments on a post (cursor-paginated)
+
+### ❤️ Likes
+- Like / unlike posts
+- Like / unlike comments
+
+### 💬 Conversations & Messaging
+- Create DM conversations
+- Create group conversations
+- List all conversations (cursor-paginated)
+- Get conversation details
+- Send messages (text, media, replies)
+- Get message history (cursor-paginated)
+- Mark messages as read
+- Group management — add/remove participants, update group info, change roles, leave, delete
+
+### 🔔 Notifications
+- Get paginated notifications feed (cursor-based)
+- Mark notifications as read (single or bulk)
+
+### 📲 Push Notifications
+- Web Push (VAPID) — subscribe/unsubscribe
+- Firebase Cloud Messaging (FCM) — register/unregister device tokens
+- VAPID public key endpoint
+
+### 📁 Media Upload
+- Upload any file (image, video, document) to Cloudinary
+- Purpose-aware upload (avatar, post media, message attachment)
+- Conversation-scoped uploads
 
 ### 🟢 Online Presence (SignalR)
-- Real-time online/offline status updates via `PresenceHub`
+- Real-time online/offline status via `PresenceHub`
 - `LastSeen` timestamp updated on disconnect
 - Respects `ShowOnlineStatus` privacy setting
 
-### 💬 Real-Time Messaging *(in progress)*
-- `ChatHub` foundation in place
-- Direct messaging between users
-- Message history persistence
+---
 
-### 🛡️ Validation Pipeline
-- Every command and query has a dedicated FluentValidation validator
-- `ValidationBehavior` in MediatR pipeline — invalid requests never reach handlers
-- Consistent `400 Bad Request` shape across all endpoints
+## 🗄️ Database Schema
+
+The full entity-relationship diagram for ConnectO's production database:
+
+![Database Schema](Final%20DB%20Schema.png)
+
+> The schema covers all domains: Users, Friendships, Posts, Comments, Likes, Conversations, Messages, Notifications, PushSubscriptions, DeviceTokens, MediaAssets, and ASP.NET Core Identity tables.
 
 ---
 
@@ -167,63 +256,56 @@ ConnectO is a full-featured social media & real-time chatting backend — built 
 Social-Media-Chatting-APP/
 ├── Social-Media-Chatting-APP-Domain/           # Pure entities + enums
 │   └── Entities/
-│       ├── AppUser.cs                          # Identity user + profile fields
-│       └── Message.cs                          # (coming soon)
+│       ├── AppUser.cs
+│       ├── Post.cs · Comment.cs · Like.cs
+│       ├── Friendship.cs
+│       ├── Conversation.cs · Message.cs
+│       ├── Notification.cs
+│       ├── PushSubscription.cs · DeviceToken.cs
+│       └── MediaAsset.cs
 │
 ├── Social-Media-Chatting-APP-Persistence/      # EF Core + Identity + Migrations
 │   ├── Data/
 │   │   ├── AppDbContext.cs
 │   │   └── Migrations/
-│   └── Repositories/
+│   ├── Repositories/
+│   └── Seeding/DataSeeder.cs                  # ProfileA + ProfileB test accounts
 │
 ├── Social-Media-Chatting-APP-Service/          # Application layer (CQRS)
-│   ├── Features/
-│   │   ├── Authentication/
-│   │   │   ├── Commands/Register · Login · RefreshToken · Logout
-│   │   │   ├── Queries/GetCurrentUser
-│   │   │   ├── Validators/
-│   │   │   └── OtpService.cs
-│   │   ├── UserProfile/
-│   │   │   ├── Commands/UpdateProfile · UploadProfilePicture
-│   │   │   ├── Queries/GetMyProfile · GetPublicProfile
-│   │   │   └── Validators/
-│   │   └── SearchUsers/
-│   │       ├── Queries/SearchUsersQuery + Handler
-│   │       └── Validators/
-│   ├── Common/
-│   │   ├── Behaviors/ValidationBehavior.cs
-│   │   └── MappingProfiles/userProfile.cs
-│   └── Infrastructure/
-│       └── UploadService.cs                    # Cloudinary wrapper
-│
-├── Social-Media-Chatting-APP-ServiceAbstraction/
-│   └── IUploadService · IOtpService · …
+│   └── Features/
+│       ├── Authentication/
+│       ├── UserProfile/
+│       ├── Posts/ · Comments/ · Likes/
+│       ├── Friendship/
+│       ├── Conversation/ · Message/
+│       ├── Notifications/
+│       ├── Push/ · DeviceTokens/
+│       ├── Upload/
+│       └── UserSearch/
 │
 ├── Social-Media-Chatting-APP-Presentation/     # Thin controllers + SignalR Hubs
 │   ├── Controllers/
 │   │   ├── AuthController.cs
-│   │   ├── UserProfileController.cs
-│   │   └── SearchController.cs
-│   ├── Hubs/
-│   │   ├── PresenceHub.cs
-│   │   └── ChatHub.cs
-│   └── Filters/
-│       └── RedisCacheAttribute.cs
-│
-├── Social-Media-Chatting-APP-SharedLibrary/    # Cross-cutting
-│   ├── Dto's/
-│   │   ├── AuthDTO's/
-│   │   └── UserDTO's/
-│   └── SharedResponse/Result.cs · Error.cs
+│   │   ├── UserProfileController.cs · UserSearchController.cs
+│   │   ├── PostController.cs · CommentsController.cs · LikesController.cs
+│   │   ├── FriendshipController.cs
+│   │   ├── ConversationController.cs · GroupConversationController.cs
+│   │   ├── MessageController.cs
+│   │   ├── NotificationsController.cs
+│   │   ├── PushController.cs · DeviceTokenController.cs
+│   │   └── UploadController.cs
+│   └── Hubs/
+│       ├── PresenceHub.cs
+│       └── ChatHub.cs
 │
 ├── Social-Media-Chatting-APP-Web/              # Host project
 │   ├── Program.cs
 │   ├── Extensions/
-│   └── appsettings.json
+│   └── CustomMiddlewares/ExceptionHandlerMiddleware.cs
 │
-├── Dockerfile                                  # Multi-stage (SDK → runtime)
-├── docker-compose.yml                          # API + SQL Server + Redis
-└── .env.example                                # Environment variable template
+├── Dockerfile
+├── docker-compose.yml
+└── .env.example
 ```
 
 ---
@@ -234,7 +316,7 @@ Social-Media-Chatting-APP/
 
 ```
 ┌──────────┐                         ┌─────────────┐
-│  Client  │  POST /auth/login        │    API      │
+│  Client  │  POST /api/Auth/login    │    API      │
 │          │ ───────────────────▶    │             │
 │          │   access token (15m)    │             │
 │          │   refresh token (7d)    │             │
@@ -244,7 +326,7 @@ Social-Media-Chatting-APP/
 │          │ ───────────────────▶    │             │
 │          │                         │             │
 │          │  when access expires:   │             │
-│          │  POST /auth/refresh     │             │
+│          │  POST /api/Auth/refresh  │             │
 │          │ ───────────────────▶    │             │
 │          │   NEW access + NEW refresh            │
 │          │   (old refresh revoked) │             │
@@ -257,33 +339,20 @@ Social-Media-Chatting-APP/
 ```
 Register → OTP generated → stored in Redis (TTL: 10min) → sent via SMTP background queue
                                       ↓
-                         POST /auth/verify-email { email, otp }
+                         POST /api/Auth/verify-otp { email, otp }
                                       ↓
                           Redis validates → user confirmed
 ```
-
-- OTP auto-expires in Redis — zero cleanup cron jobs needed
-- Background email queue (`BackgroundEmailQueue`) prevents SMTP from blocking the HTTP response
 
 ---
 
 ## ✉️ Email Service
 
-### How it works
 - Auth flows call `OtpService.GenerateAndSendAsync(...)` to create a 6-digit code and send it to the user.
-- `OtpService` stores the OTP in Redis with a 10-minute TTL and enforces a 3-attempt limit.
-- The actual email send is asynchronous: services enqueue a job into `BackgroundEmailQueue` and return immediately.
-- `EmailSenderBackgroundService` runs in the background, dequeues jobs, and calls `EmailService.SendAsync(...)`.
-- `EmailService` uses MailKit with STARTTLS to connect to Gmail (`smtp.gmail.com:587`), authenticate, and send HTML emails.
-- Password reset uses `AuthService.ForgotPasswordAsync(...)` to generate a short-lived reset token and send the reset link by email.
-
-### Configuration
-- Configure SMTP and sender details in `Social-Media-Chatting-APP-Web/appsettings.json` under `EmailSettings`.
-- Gmail requires 2FA and an App Password (use the App Password in `EmailSettings:Password`).
-- For production, store secrets in a secure config provider and do not commit them to git.
-
-### Screenshot
-![Verification email screenshot](docs/screenshots/email-verification.png)
+- OTP stored in Redis with 10-minute TTL and 3-attempt limit.
+- The actual email send is asynchronous: enqueued into `BackgroundEmailQueue` — HTTP response returns immediately.
+- `EmailSenderBackgroundService` dequeues and sends via MailKit with STARTTLS (`smtp.gmail.com:587`).
+- Password reset uses `AuthService.ForgotPasswordAsync(...)` — generates a short-lived reset token sent by email.
 
 ---
 
@@ -294,21 +363,53 @@ Register → OTP generated → stored in Redis (TTL: 10min) → sent via SMTP ba
 ```
 Client connects with JWT       →  PresenceHub.OnConnectedAsync()
                                     → sets IsOnline = true
-                                    → broadcasts to followers (coming soon)
+                                    → broadcasts to followers
 
 Client disconnects             →  PresenceHub.OnDisconnectedAsync()
                                     → sets IsOnline = false
                                     → updates LastSeen = DateTime.UtcNow
 ```
 
-**Chat Hub** — foundation ready, full messaging in progress
+**Chat Hub** — real-time messaging
 
 ```
-Client joins conversation      →  ChatHub
-                                    → send/receive messages in real time
-                                    → typing indicators (coming soon)
-                                    → read receipts (coming soon)
+Client sends message           →  ChatHub
+                                    → persists to DB
+                                    → broadcasts to conversation participants
+                                    → triggers push notification if recipient offline
+                                    → supports typing indicators & read receipts
 ```
+
+> ⚠️ SignalR doesn't use `Authorization` headers — the JWT must be passed as a query string parameter: `?access_token=YOUR_TOKEN`
+
+---
+
+## 🧪 SignalR Testing Tool
+
+A dedicated web-based tool is available to test all SignalR hubs interactively without writing any client code:
+
+**Repo:** [github.com/sefffo/ConnectO-SignalR-Testing-Tool](https://github.com/sefffo/ConnectO-SignalR-Testing-Tool)
+
+![SignalR Testing Tool](https://raw.githubusercontent.com/sefffo/ConnectO/main/Test%20Tool.png)
+
+### Features
+- Connect to **PresenceHub** and **ChatHub** with your JWT token
+- Fire any hub method and see server responses in real time
+- Test message send, typing indicators, read receipts, and presence events
+- Pre-configured to point to the production Azure endpoint
+
+### Quickstart
+```bash
+git clone https://github.com/sefffo/ConnectO-SignalR-Testing-Tool.git
+cd ConnectO-SignalR-Testing-Tool
+# open index.html in your browser — no build step needed
+```
+
+Set the **Server URL** to:
+```
+https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net
+```
+Paste your JWT from `/api/Auth/login` and connect.
 
 ---
 
@@ -318,7 +419,7 @@ Client joins conversation      →  ChatHub
 
 ```
          ┌─────────────────────────────┐
-         │  GET /api/search?q=saif     │
+         │  GET /api/UserSearch?q=saif │
          │  Authorization: Bearer ...  │
          └──────────────┬──────────────┘
                         │
@@ -331,7 +432,7 @@ Client joins conversation      →  ChatHub
             hit              miss
              │                │
      ┌───────▼──┐   ┌─────────▼─────────┐
-     │ Return   │   │  Query SQL Server  │
+     │ Return   │   │  Query PostgreSQL  │
      │ cached   │   │  Map → DTOs        │
      │ JSON     │   │  SET Redis TTL 30s │
      └──────────┘   └────────────────────┘
@@ -339,7 +440,6 @@ Client joins conversation      →  ChatHub
 
 - **TTL: 30 seconds** — fresh enough for a social app, long enough to absorb repeated searches
 - **Per-user isolation** — `user-search:userA:?q=saif` ≠ `user-search:userB:?q=saif`
-- **No cross-user leakage** — unauthenticated requests are blocked by `[Authorize]` before the filter runs
 
 ---
 
@@ -348,29 +448,147 @@ Client joins conversation      →  ChatHub
 Profile picture upload flow:
 
 ```
-POST /api/profile/picture  (multipart/form-data)
+POST /api/UserProfile/my-profile/upload-picture  (multipart/form-data)
          │
          ▼
-  UploadProfilePictureCommandValidator
-  • file not null
-  • size ≤ 5 MB
-  • extension: .jpg / .jpeg / .png / .webp
-  • content-type: image/jpeg / image/png / image/webp
+  Validator: size ≤ 5 MB · extension: .jpg / .jpeg / .png / .webp
          │
          ▼
-  UploadService.UploadAsync()
-  → uploads to Cloudinary folder: profile-pictures/
-  → returns { PublicId, Url }
+  UploadService.UploadAsync()  →  Cloudinary folder: profile-pictures/
          │
          ▼
   If user had previous picture:
   → UploadService.DeleteAsync(oldPublicId)
          │
          ▼
-  AppUser.ProfilePicture = newUrl
-  AppUser.ProfilePicturePublicId = newPublicId
-  SaveChanges()
+  AppUser.ProfilePicture = newUrl · SaveChanges()
 ```
+
+General file upload via `POST /api/Upload` supports images, videos, and documents — purpose-aware (avatar, post, message attachment).
+
+---
+
+## 📖 API Reference
+
+Full interactive docs: **[Scalar UI on Production](https://connecto-fvfuauetc7buamaz.westeurope-01.azurewebsites.net/scalar/#description/introduction)**
+
+### 🔐 Auth
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/Auth/register` | ❌ | Create account |
+| POST | `/api/Auth/login` | ❌ | Returns access + refresh tokens |
+| POST | `/api/Auth/refresh` | ❌ | Rotate tokens |
+| POST | `/api/Auth/logout` | ✅ | Revoke refresh token |
+| POST | `/api/Auth/verify-otp` | ❌ | Verify email OTP |
+| POST | `/api/Auth/resend-otp` | ❌ | Resend OTP |
+| POST | `/api/Auth/forgot-password` | ❌ | Send reset link |
+| POST | `/api/Auth/reset-password` | ❌ | Reset password |
+| GET  | `/api/Auth/google-login` | ❌ | Google OAuth redirect |
+| GET  | `/api/Auth/google-callback` | ❌ | Google OAuth callback |
+| POST | `/api/Auth/2fa/enable` | ✅ | Enable 2FA |
+| POST | `/api/Auth/2fa/disable` | ✅ | Disable 2FA |
+
+### 👤 User Profile
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET    | `/api/UserProfile/my-profile` | ✅ | My full profile |
+| PUT    | `/api/UserProfile/my-profile` | ✅ | Update profile |
+| GET    | `/api/UserProfile/{userId}` | ✅ | Public profile |
+| POST   | `/api/UserProfile/my-profile/upload-picture` | ✅ | Upload profile picture |
+| DELETE | `/api/UserProfile/my-profile/picture` | ✅ | Delete profile picture |
+
+### 🔍 Search
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/UserSearch?q={term}` | ✅ | Search users (Redis-cached) |
+
+### 🤝 Friendship
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST   | `/api/Friendship/send/{targetUserId}` | ✅ | Send friend request |
+| PUT    | `/api/Friendship/respond/{friendshipId}` | ✅ | Accept / decline request |
+| DELETE | `/api/Friendship/unfriend/{targetUserId}` | ✅ | Unfriend |
+| POST   | `/api/Friendship/block/{targetUserId}` | ✅ | Block user |
+| DELETE | `/api/Friendship/unblock/{targetUserId}` | ✅ | Unblock user |
+| GET    | `/api/Friendship/friends` | ✅ | Friends list |
+| GET    | `/api/Friendship/blocked` | ✅ | Blocked users |
+| GET    | `/api/Friendship/requests/incoming` | ✅ | Incoming requests |
+| GET    | `/api/Friendship/requests/outgoing` | ✅ | Outgoing requests |
+
+### 📝 Posts
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST   | `/api/Post` | ✅ | Create post |
+| GET    | `/api/Post/{postId}` | ✅ | Get post |
+| PUT    | `/api/Post/{postId}` | ✅ | Edit post |
+| DELETE | `/api/Post/{postId}` | ✅ | Delete post |
+| GET    | `/api/Post/feed` | ✅ | Paginated feed |
+| GET    | `/api/Post/posts/{authorId}` | ✅ | Posts by author |
+| POST   | `/api/Post/repost` | ✅ | Repost / quote-repost |
+
+### 💬 Comments
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST   | `/api/Comments/{postId}/comments` | ✅ | Add comment |
+| GET    | `/api/Comments/{postId}/comments` | ✅ | Get comments |
+| PUT    | `/api/Comments/{postId}/comments/{commentId}` | ✅ | Edit comment |
+| DELETE | `/api/Comments/{postId}/comments/{commentId}` | ✅ | Delete comment |
+| GET    | `/api/Comments/{commentId}/replies` | ✅ | Get replies |
+
+### ❤️ Likes
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/Likes/posts/{postId}` | ✅ | Like / unlike post |
+| POST | `/api/Likes/comments/{commentId}` | ✅ | Like / unlike comment |
+
+### 💬 Conversations
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET  | `/api/Conversation` | ✅ | List conversations |
+| GET  | `/api/Conversation/{conversationId}` | ✅ | Get conversation |
+| POST | `/api/Conversation/dm` | ✅ | Start DM |
+| POST | `/api/Conversation/group` | ✅ | Create group |
+
+### 👥 Group Conversations
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST   | `/api/GroupConversation/{conversationId}/participants` | ✅ | Add participants |
+| DELETE | `/api/GroupConversation/{conversationId}/participants/{participantId}` | ✅ | Remove participant |
+| PATCH  | `/api/GroupConversation/{conversationId}/info` | ✅ | Update group info |
+| PATCH  | `/api/GroupConversation/{conversationId}/role` | ✅ | Change role |
+| POST   | `/api/GroupConversation/{conversationId}/leave` | ✅ | Leave group |
+| DELETE | `/api/GroupConversation/{conversationId}` | ✅ | Delete group |
+
+### 📨 Messages
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/Message` | ✅ | Send message |
+| GET  | `/api/Message/{conversationId}` | ✅ | Message history |
+| POST | `/api/Message/read` | ✅ | Mark as read |
+
+### 🔔 Notifications
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/Notifications` | ✅ | Get notifications |
+| PUT | `/api/Notifications/read` | ✅ | Mark as read |
+
+### 📲 Push
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET    | `/api/push/vapid-key` | ❌ | Get VAPID public key |
+| POST   | `/api/push/subscribe` | ✅ | Web Push subscribe |
+| DELETE | `/api/push/unsubscribe` | ✅ | Web Push unsubscribe |
+
+### 📱 Device Tokens (FCM)
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST   | `/api/device-tokens/register` | ✅ | Register FCM token |
+| DELETE | `/api/device-tokens/unregister` | ✅ | Unregister FCM token |
+
+### 📁 Upload
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/Upload` | ✅ | Upload file to Cloudinary |
 
 ---
 
@@ -378,7 +596,7 @@ POST /api/profile/picture  (multipart/form-data)
 
 ### Prerequisites
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- Docker Desktop (for SQL Server + Redis)
+- Docker Desktop (for PostgreSQL + Redis)
 
 ### Option A — Docker Compose (easiest)
 
@@ -389,9 +607,7 @@ cp .env.example .env   # fill in your secrets
 docker-compose up --build
 ```
 
-→ Swagger opens at **http://localhost:5000/swagger**
-
-This spins up **SQL Server 2022 + Redis 7 + the API** on a private Docker network.
+→ Scalar docs open at **http://localhost:5000/scalar**
 
 ### Option B — Native dotnet
 
@@ -401,12 +617,10 @@ dotnet ef database update --project Social-Media-Chatting-APP-Persistence --star
 dotnet run --project Social-Media-Chatting-APP-Web
 ```
 
-Configure `appsettings.Development.json` with your local SQL Server, Redis, SMTP, and Cloudinary credentials first.
-
 ### Required Environment Variables
 
 ```env
-ConnectionStrings__DefaultConnection=Server=...;Database=ConnectO;...
+ConnectionStrings__DefaultConnection=Host=...;Database=ConnectO;Username=...;Password=...;SSL Mode=Require
 ConnectionStrings__Redis=localhost:6379
 JwtOptions__SecretKey=your-secret-key
 JwtOptions__Issuer=ConnectO
@@ -424,19 +638,15 @@ EmailSettings__Password=your-app-password
 
 ## 🐳 Docker Deployment
 
-**Multi-stage Dockerfile — how & why**
+**Multi-stage Dockerfile**
 
 ```dockerfile
 # Stage 1: SDK image (~800MB) — compiles the code
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-
-# Copy .csproj files FIRST, restore, THEN copy source.
-# Changing a .cs file reuses the cached restore layer → fast rebuilds.
 COPY *.slnx .
 COPY */*.csproj ./
 RUN dotnet restore
-
 COPY . .
 RUN dotnet publish Social-Media-Chatting-APP-Web/... -c Release -o /app/publish --no-restore
 
@@ -448,53 +658,28 @@ EXPOSE 8080
 ENTRYPOINT ["dotnet", "Social-Media-Chatting-APP-Web.dll"]
 ```
 
-- **Final image ≈ 220 MB** instead of ~800 MB — no SDK, no source code in production
-- `docker-compose.yml` wires API + SQL Server 2022 + Redis 7 with health-checks
-
----
-
-## 📖 API Reference
-
-Full interactive docs via **Swagger UI** when running locally at `/swagger`.
-
-### Authentication
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Create account |
-| POST | `/api/auth/verify-email` | Verify OTP |
-| POST | `/api/auth/resend-otp` | Resend OTP |
-| POST | `/api/auth/login` | Returns access + refresh tokens |
-| POST | `/api/auth/refresh` | Rotate tokens |
-| POST | `/api/auth/logout` | Revoke refresh token |
-| GET  | `/api/auth/me` | Current user info |
-
-### User Profile
-| Method | Endpoint | Description |
-|---|---|---|
-| GET   | `/api/profile/me` | My full profile |
-| PATCH | `/api/profile` | Update profile fields |
-| POST  | `/api/profile/picture` | Upload profile picture |
-| GET   | `/api/profile/{userId}` | Public profile of any user |
-
-### Search
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/search?q={term}` | Search users (cached, user-scoped) |
+**Final image ≈ 220 MB** — no SDK, no source code shipped to production.
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] Authentication (Register, Login, OTP, JWT + Refresh Tokens)
-- [x] User Profile (view, update, profile picture upload via Cloudinary)
+- [x] Authentication (Register, Login, OTP, JWT + Refresh Tokens, Google OAuth, 2FA, Forgot/Reset Password)
+- [x] User Profile (view, update, profile picture via Cloudinary)
 - [x] User Search with user-scoped Redis caching
 - [x] SignalR Presence Hub (online/offline tracking)
-- [ ] Direct Messaging (ChatHub — in progress)
-- [ ] Message history persistence
-- [ ] Typing indicators & read receipts
-- [ ] Follow / Friend system
-- [ ] Posts & Feed
-- [ ] Notifications
+- [x] Friendship system (send, accept, block, unfriend)
+- [x] Posts, Comments, Likes (full CRUD + feeds)
+- [x] Repost / quote-repost
+- [x] Direct & group conversations
+- [x] Real-time messaging via SignalR ChatHub
+- [x] Push Notifications (Web Push VAPID + FCM)
+- [x] Notifications feed
+- [x] Media upload (Cloudinary — images, video, docs)
+- [x] Deployed on Azure App Service + Neon PostgreSQL
+- [ ] Follow system
+- [ ] Stories
+- [ ] Automated testing (xUnit + k6 load testing)
 - [ ] CI/CD pipeline (GitHub Actions → Azure)
 
 ---
@@ -511,6 +696,8 @@ Full interactive docs via **Swagger UI** when running locally at `/swagger`.
 | **SignalR + JWT** | SignalR doesn't use Authorization headers — the token must be passed via query string and validated manually |
 | **Cloudinary cleanup** | Uploading a new image without deleting the old one leaks storage — always store `PublicId` alongside the URL |
 | **FluentValidation** | Declarative validation rules are far more readable and testable than imperative `if` chains |
+| **Push Notifications** | Web Push and FCM require separate pipelines — VAPID for browsers, FCM device tokens for mobile |
+| **Neon PostgreSQL** | Serverless Postgres branches mirror Git workflow — branch per environment, zero ops overhead |
 
 ---
 
@@ -518,7 +705,7 @@ Full interactive docs via **Swagger UI** when running locally at `/swagger`.
 
 ### 🔗 Related
 
-[**E-Commerce REST API**](https://github.com/sefffo/E-Commerce-dotnet-API) · [**E-Commerce Dashboard**](https://github.com/sefffo/ecommerce-dashboard)
+[**SignalR Testing Tool**](https://github.com/sefffo/ConnectO-SignalR-Testing-Tool) · [**E-Commerce REST API**](https://github.com/sefffo/E-Commerce-dotnet-API) · [**E-Commerce Dashboard**](https://github.com/sefffo/ecommerce-dashboard)
 
 ---
 
