@@ -6,7 +6,7 @@ namespace Social_Media_Chatting_APP_SharedLibrary.Dtos
         Guid Id,
         Guid ActorId,
         string ActorUsername,
-        string? ActorAvatarUrl,
+        string? ActorProfilePicture,
         NotificationType Type,
         Guid? ReferenceId,
         bool IsRead,

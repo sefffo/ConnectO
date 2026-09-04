@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_SharedLibrary.Dtos;
@@ -7,7 +8,8 @@ using Social_Media_Chatting_APP_SharedLibrary.SharedResponse;
 namespace Social_Media_Chatting_APP_Service.Features.Notifications.Queries.GetNotifications
 {
     public class GetNotificationsQueryHandler(
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        UserManager<AppUser> userManager
     ) : IRequestHandler<GetNotificationsQuery, Result<NotificationFeedDto>>
     {
         public async Task<Result<NotificationFeedDto>> Handle(
@@ -19,7 +21,6 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Queries.GetNo
 
             var repo = unitOfWork.GetRepository<Notification, Guid>();
 
-            // Fetch page + 1 to determine hasMore
             var allForUser = (await repo.FindAllAsync(n => n.RecipientId == userId)).ToList();
 
             var filtered = allForUser.AsEnumerable();
@@ -34,28 +35,26 @@ namespace Social_Media_Chatting_APP_Service.Features.Notifications.Queries.GetNo
             var hasMore = ordered.Count > request.PageSize;
             var page = ordered.Take(request.PageSize).ToList();
 
-            // Unread count across ALL user notifications (not just this page)
             var unreadCount = allForUser.Count(n => !n.IsRead);
 
-            // Load Actor info for each notification
-            var actorIds = page.Select(n => n.ActorId).Distinct().ToList();
-            var userRepo = unitOfWork.GetRepository<AppUser, string>();
-            var actors = new Dictionary<Guid, AppUser>();
+            // Resolve actor display info via UserManager
+            var actorIds = page.Select(n => n.ActorId.ToString()).Distinct().ToList();
+            var actors = new Dictionary<string, AppUser>();
             foreach (var actorId in actorIds)
             {
-                var actor = await repo.FindAsync(n => n.ActorId == actorId);
+                var actor = await userManager.FindByIdAsync(actorId);
                 if (actor is not null)
-                    actors.TryAdd(actorId, actor.Actor);
+                    actors[actorId] = actor;
             }
 
             var dtos = page.Select(n =>
             {
-                actors.TryGetValue(n.ActorId, out var actor);
+                actors.TryGetValue(n.ActorId.ToString(), out var actor);
                 return new NotificationDto(
                     n.Id,
                     n.ActorId,
                     actor?.UserName ?? "Unknown",
-                    actor?.AvatarUrl,
+                    actor?.ProfilePicture,
                     n.Type,
                     n.ReferenceId,
                     n.IsRead,
