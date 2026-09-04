@@ -65,7 +65,8 @@ namespace Social_Media_Chatting_APP_Persistence.Seeding
         {
             using var scope = serviceProvider.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<DataSeeder>>();
+            var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger(nameof(DataSeeder));
 
             foreach (var (user, password) in SeedUsers)
             {
