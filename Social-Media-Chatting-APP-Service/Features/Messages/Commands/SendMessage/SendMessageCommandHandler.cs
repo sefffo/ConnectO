@@ -18,6 +18,7 @@ public class SendMessageCommandHandler(
     IMapper mapper,
     IRealtimeNotifier realtimeNotifier,
     IPushNotificationService pushNotificationService,
+    IFcmNotificationService fcmNotificationService,
     UserManager<AppUser> userManager
 ) : IRequestHandler<SendMessageCommand, Result<MessageDto>>
 {
@@ -140,11 +141,12 @@ public class SendMessageCommandHandler(
 
         var mappedMessage = mapper.Map<MessageDto>(message);
 
-        // Online path — SignalR delivers in real time
+        // ── Online path: SignalR delivers in real time ────────────────────────────
         await realtimeNotifier.BroadcastNewMessage(request.ConversationId, mappedMessage);
 
-        // Offline path — Web Push fires for every participant who is NOT the sender
-        // AppUser.IsOnline tracks connection state (updated by ChatHub on connect/disconnect)
+        // ── Offline path: fire Web Push + FCM for every offline participant ───────
+        // Both run fire-and-forget via Task.Run so the API response is never blocked.
+        // IsOnline is set by ChatHub.OnConnectedAsync / OnDisconnectedAsync.
         var offlineParticipants = conversation.Participants
             .Where(p => p.UserId != request.senderId)
             .ToList();
@@ -152,20 +154,34 @@ public class SendMessageCommandHandler(
         foreach (var participant in offlineParticipants)
         {
             var participantUser = await userManager.FindByIdAsync(participant.UserId);
-            if (participantUser is not null && !participantUser.IsOnline)
-            {
-                var notificationBody = request.contentType == MessageContentType.Text
-                    ? request.textContent ?? string.Empty
-                    : $"Sent a {request.contentType.ToString().ToLower()}"; // e.g. "Sent an image"
+            if (participantUser is null || participantUser.IsOnline)
+                continue;
 
-                // Fire-and-forget: push delivery should never block the API response
-                _ = Task.Run(() => pushNotificationService.SendAsync(
-                    participant.UserId,
-                    senderUser?.DisplayName ?? "New Message",
-                    notificationBody,
-                    url: $"/chat/{request.ConversationId}"
-                ), cancellationToken);
-            }
+            var notificationBody = request.contentType == MessageContentType.Text
+                ? request.textContent ?? string.Empty
+                : $"Sent a {request.contentType.ToString().ToLower()}";
+
+            var senderName = senderUser?.DisplayName ?? "New Message";
+            var deepLink = $"/chat/{request.ConversationId}";
+
+            // Web Push (browser / PWA)
+            _ = Task.Run(() => pushNotificationService.SendAsync(
+                participant.UserId,
+                senderName,
+                notificationBody,
+                url: deepLink), cancellationToken);
+
+            // FCM (React Native mobile app)
+            _ = Task.Run(() => fcmNotificationService.SendAsync(
+                participant.UserId,
+                senderName,
+                notificationBody,
+                data: new Dictionary<string, string>
+                {
+                    ["conversationId"] = request.ConversationId.ToString(),
+                    ["senderId"]       = request.senderId,
+                    ["type"]           = "new_message"
+                }), cancellationToken);
         }
 
         return Result<MessageDto>.Ok(mappedMessage);
