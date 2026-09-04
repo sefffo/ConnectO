@@ -11,7 +11,7 @@ namespace Social_Media_Chatting_APP_Persistence.DbContext
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(Social_Media_Chatting_APP_DbContext).Assembly);
         }
-
+        
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
@@ -25,11 +25,6 @@ namespace Social_Media_Chatting_APP_Persistence.DbContext
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<PostLike> PostLikes { get; set; }
-
-        // Push Notifications (Web)
-        public DbSet<PushSubscription> PushSubscriptions { get; set; }
-
-        // FCM Mobile Notifications
-        public DbSet<DeviceToken> DeviceTokens { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }
