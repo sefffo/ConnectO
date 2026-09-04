@@ -14,6 +14,7 @@ env:
   TESTS_PROJECT_PATH: 'Social-Media-Chatting-APP-Service.Tests'
   PUBLISH_OUTPUT: './publish'
   AZURE_WEBAPP_NAME: connecto-fvfuauetc7buamaz
+  AZURE_SUBSCRIPTION_ID: 'fb310b86-885a-441d-b45c-c3970be294cd'
 
 jobs:
   # ─────────────────────────────────────────────
@@ -122,6 +123,9 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set Azure subscription
+        run: az account set --subscription ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy via Azure CLI zip deploy
         run: |
