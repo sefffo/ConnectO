@@ -104,11 +104,9 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 //await app.MigrateDatabaseAsync();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+// Enabled in all environments temporarily for testing
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.UseCors("TestWebPolicy");    
 //app.UseHttpsRedirection();
