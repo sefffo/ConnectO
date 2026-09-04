@@ -20,31 +20,31 @@ namespace Social_Media_Chatting_APP_Service.Common
     public static class ServicesRegistration
     {
         public static IServiceCollection AddApplicationServices(
-            this IServiceCollection services
-            , IConfiguration configuration)
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
             var assembly = typeof(ServicesRegistration).Assembly;
 
             #region Real Time Notifier Service
-
             services.AddScoped<IRealtimeNotifier, RealTimeNotifierService>();
-
             #endregion
 
-
-            #region Push Notification Service
-
-            // Named HttpClient for Web Push so it doesn't interfere with other clients
+            #region Push Notification Service (Web / PWA)
+            // Named HttpClient so Web Push doesn't share connection pool with FCM
             services.AddHttpClient("WebPush");
             services.AddScoped<IPushNotificationService, PushNotificationService>();
-
             #endregion
 
+            #region FCM Mobile Notification Service
+            // Separate named HttpClient for Firebase HTTP v1 API
+            services.AddHttpClient("Fcm");
+            services.AddScoped<IFcmNotificationService, FcmNotificationService>();
+            #endregion
 
             #region Upload Service
-
             services.Configure<CloudinarySettings>(configuration.GetSection("Cloudinary"));
             services.AddScoped<IUploadService, UploadService>();
+
             var cloudinarySettings = configuration
                 .GetSection("Cloudinary")
                 .Get<CloudinarySettings>();
@@ -52,24 +52,18 @@ namespace Social_Media_Chatting_APP_Service.Common
             var account = new Account(
                 cloudinarySettings.CloudName,
                 cloudinarySettings.ApiKey,
-                cloudinarySettings.ApiSecret
-            );
+                cloudinarySettings.ApiSecret);
 
             var cloudinary = new Cloudinary(account);
             cloudinary.Api.Secure = true;
-
             services.AddSingleton(cloudinary);
-
             services.AddScoped<IUploadService, UploadService>();
 
             services.AddSingleton<BackgroundUploadQueue>();
             services.AddHostedService<UploadBackgroundService>();
-
             #endregion
 
-
             #region Rate Limiting
-
             services.AddRateLimiter(options =>
             {
                 options.OnRejected = async (context, cancellationToken) =>
@@ -97,31 +91,22 @@ namespace Social_Media_Chatting_APP_Service.Common
                     limiterOptions.QueueLimit = 0;
                 });
             });
-
             #endregion
 
-
             #region Email Service
-
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
             services.Configure<AppSettings>(configuration.GetSection("URLS"));
             services.AddTransient<IEmailService, EmailService>();
-
             services.AddSingleton<BackgroundEmailQueue>();
             services.AddHostedService<EmailSenderBackgroundService>();
-
             #endregion
 
             services.AddScoped<IOtpService, OtpService>();
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddAutoMapper(assembly);
-
-            services.AddMediatR(cfg =>
-                cfg.RegisterServicesFromAssembly(assembly));
-
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
             services.AddValidatorsFromAssembly(assembly);
-
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

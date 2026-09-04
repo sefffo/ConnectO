@@ -26,7 +26,10 @@ namespace Social_Media_Chatting_APP_Persistence.DbContext
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<PostLike> PostLikes { get; set; }
 
-        // Push Notifications
+        // Push Notifications (Web)
         public DbSet<PushSubscription> PushSubscriptions { get; set; }
+
+        // FCM Mobile Notifications
+        public DbSet<DeviceToken> DeviceTokens { get; set; }
     }
 }
