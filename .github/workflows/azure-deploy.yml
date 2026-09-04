@@ -13,7 +13,7 @@ env:
   PERSISTENCE_PROJECT_PATH: 'Social-Media-Chatting-APP-Persistence/Social-Media-Chatting-APP-Persistence.csproj'
   TESTS_PROJECT_PATH: 'Social-Media-Chatting-APP-Service.Tests'
   PUBLISH_OUTPUT: './publish'
-  AZURE_WEBAPP_NAME: connecto-fvfuauetc7buamaz
+  AZURE_WEBAPP_NAME: ConnectO
   AZURE_SUBSCRIPTION_ID: 'fb310b86-885a-441d-b45c-c3970be294cd'
 
 jobs:
