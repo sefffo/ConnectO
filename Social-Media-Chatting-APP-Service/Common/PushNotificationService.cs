@@ -8,6 +8,7 @@ using Social_Media_Chatting_APP_Domain.Entities;
 using Social_Media_Chatting_APP_Domain.Interfaces;
 using Social_Media_Chatting_APP_Service.Specification.PushSubscriptions;
 using Social_Media_Chatting_APP_ServiceAbstraction;
+using PushSubscription = Social_Media_Chatting_APP_Domain.Entities.PushSubscription;
 
 namespace Social_Media_Chatting_APP_Service.Common;
 
